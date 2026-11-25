@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/theme-loader.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE - Full Audit Trail Log</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #F5F0E4;
+            --sidebar-bg: var(--pd-sidebar, #16211F);
+            --sidebar-active: var(--pd-brand, #1F5C56);
+            --text-dark: var(--pd-ink, #2A2318);
+            --text-muted: var(--pd-ink-muted, #766B5A);
+            --border-color: #E4DAC5;
+            --primary-blue: var(--pd-brand, #1F5C56);
+            --alert-orange: var(--pd-amber, #D98E2B);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            display: flex;
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR SYSTEM --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0 10px 0;
+            z-index: 100;
+            color: #D8CBAE;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            margin-bottom: 25px;
+            flex-shrink: 0;
+        }
+
+        .logo-icon-box {
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text p {
+            color: #A79C89;
+            font-size: 11px;
+        }
+
+        .menu-scroll {
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 20px;
+        }
+        .menu-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .menu-scroll::-webkit-scrollbar-thumb {
+            background: #1E332E;
+            border-radius: 4px;
+        }
+
+        .nav-group-title {
+            color: var(--pd-ink-muted, #766B5A);
+            padding: 15px 20px 5px 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px; margin: 2px 10px; border-radius: 10px; width: calc(100% - 20px);
+            color: #A79C89;
+            text-decoration: none;
+            font-size: 13.5px;
+            transition: 0.2s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: white;
+            background: var(--sidebar-active);
+        }
+
+        .nav-item.active { box-shadow: 0 4px 10px rgba(31,92,86,.35); border-radius: 10px; margin: 2px 10px; width: calc(100% - 20px); }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-left i {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .badge-orange {
+            background: var(--alert-orange);
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            margin-top: auto; /* This pushes the footer to the bottom of the sidebar */
+            border-top: 1px solid #1E332E;
+            padding: 15px 20px 15px 20px; /* Added a bit more bottom padding for better spacing */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            background-color: var(--sidebar-bg);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #4FA79B;
+            color: #1B160E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .user-meta h4 {
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-meta p {
+            color: #A79C89;
+            font-size: 11px;
+        }
+
+        /* --- MAIN VIEWPORTS --- */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- TOP HEADER NAVIGATION --- */
+        .top-navbar {
+            background: white;
+            height: 65px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .search-container {
+            position: relative;
+            width: 350px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border-color);
+            background: var(--pd-paper, #F7F3EA);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .nav-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-icon-box {
+            position: relative;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .noti-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #C1443A;
+            color: white;
+            font-size: 9px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* --- AUDIT TRAIL DATA COMPONENT --- */
+        .workspace-panel {
+            padding: 30px;
+            flex: 1; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+
+        .view-title-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .view-title-block h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .timeline-sort-meta {
+            text-align: right;
+        }
+
+        .timeline-sort-meta h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .timeline-sort-meta p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Full Table Wrapper Container */
+        .audit-table-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            overflow-x: auto;
+        }
+
+        .audit-master-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+
+        .audit-master-table th {
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 14px 12px;
+            border-bottom: 2px solid var(--border-color);
+            background: white;
+            white-space: nowrap;
+        }
+
+        .audit-master-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #E4DAC5;
+            color: #1B160E;
+            vertical-align: middle;
+        }
+
+        .audit-master-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .audit-master-table tr:hover {
+            background-color: var(--pd-paper, #F7F3EA);
+        }
+    
+        /* Responsive sidebar */
+        .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; margin-right: 14px; }
+        .hamburger-btn:hover { background: #EFE7D6; }
+        .hamburger-btn svg { width: 22px; height: 22px; color: var(--text-dark, var(--pd-ink, #2A2318)); display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(2,6,23,.55); z-index: 90; }
+        .sidebar-overlay.open { display: block; }
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform .25s ease; z-index: 110; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger-btn { display: inline-flex; align-items: center; justify-content: center; }
+            .main-content { margin-left: 0 !important; }
+            .search-container { display: none; }
+        }
+
+        /* SIDEBAR COLLAPSE / CLOSE CONTROLS */
+        .sidebar-controls { display: flex; justify-content: flex-end; align-items: center; padding: 0 14px 12px; gap: 6px; flex-shrink: 0; }
+        .sidebar-toggle-btn, .sidebar-close-btn { background: rgba(255,255,255,0.06); border: none; color: #C7D6CE; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s ease; flex-shrink: 0; }
+        .sidebar-toggle-btn:hover, .sidebar-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .sidebar-toggle-btn svg, .sidebar-close-btn svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
+        .sidebar-close-btn { display: none; }
+
+        .sidebar { transition: width .2s ease; }
+        .main-content { transition: margin-left .2s ease; }
+
+        .sidebar.collapsed { width: 76px !important; }
+        .sidebar.collapsed .sidebar-controls { justify-content: center; padding: 0 6px 12px; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+
+        .sidebar.collapsed .logo-section,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .badge-orange,
+        .sidebar.collapsed .user-meta,
+        .sidebar.collapsed .sidebar-footer i {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .logo-section { justify-content: center !important; padding: 0 8px !important; }
+        .sidebar.collapsed .logo-icon-box { font-size: 20px !important; }
+
+        .sidebar.collapsed .nav-item { justify-content: center; margin: 2px 8px; width: calc(100% - 16px); }
+        .sidebar.collapsed .nav-left { gap: 0; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; padding: 20px 8px; }
+        .sidebar.collapsed .menu-scroll { margin-top: 40px; }
+
+        body.sidebar-collapsed .main-content { margin-left: 76px !important; }
+
+        @media (max-width: 900px) {
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-close-btn { display: flex; }
+            body.sidebar-collapsed .main-content { margin-left: 0 !important; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-controls">
+            <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu" title="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div>
+            <div class="logo-section">
+                <div class="logo-icon-box">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>PADANE System</h1>
+                    <p>Assistive & Navigational</p>
+                </div>
+            </div>
+
+            <div class="menu-scroll">
+                <div class="nav-group-title">Main</div>
+                <a href="admin.html" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </div>
+                </a>
+                <a href="device_management.html" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>Device Management</span>
+                    </div>
+                </a>
+
+                <div class="nav-group-title">Management</div>
+                <a href="user_profiles.html" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>User Profiles</span>
+                    </div>
+                </a>
+                <a href="real_alert.html" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>Real-time Alerts</span>
+                    </div>
+                </a>
+
+                <a href="audit_trail.html" class="nav-item active">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Audit Trail</span>
+                    </div>
+                </a>
+
+                <div class="nav-group-title">System</div>
+                <a href="user_setting.html" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>User Settings</span>
+                    </div>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-circle-question"></i>
+                        <span>Support</span>
+                    </div>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-left">
+                        <i class="fa-solid fa-gears"></i>
+                        <span>System Config</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">AR</div>
+            <div class="user-meta">
+                <h4 id="admin-name-sidebar">Amara Reyes</h4>
+                <p>Administrator</p>
+            </div>
+            <i class="fa-solid fa-right-from-bracket" onclick="triggerLogout()" style="margin-left: auto; cursor: pointer; color: var(--pd-ink-muted, #766B5A); width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; align-self: center; font-size: 15px; flex-shrink: 0;"></i>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-navbar">
+            <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search logs, actors, IP addresses...">
+            </div>
+            <div class="nav-right-actions">
+                <div class="notification-icon-box">
+                    <i class="fa-regular fa-bell"></i>
+                    <div class="noti-badge">3</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar" style="background: #E4DAC5; color: var(--text-dark);">AR</div>
+                    <div class="user-meta" style="color: var(--text-dark);">
+                        <h4 id="admin-name-topbar" style="color: var(--text-dark);">Amara Reyes</h4>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace-panel">
+            <div class="view-title-block">
+                <h2>Full Audit Trail</h2>
+                <div class="timeline-sort-meta">
+                    <h4>Sort timeline</h4>
+                    <p>Displaying historical log of security and tracking environment configurations.</p>
+                </div>
+            </div>
+
+            <div class="audit-table-card">
+                <table class="audit-master-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Actor</th>
+                            <th>Action</th>
+                            <th>Object/User</th>
+                            <th>IP Address</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody">
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Loading audit trail...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Authentication Gate
+            if (sessionStorage.getItem("loggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Read the dynamic username captured during the server verification phase
+            const currentAdmin = sessionStorage.getItem("username") || "Amara Reyes";
+            document.getElementById("admin-name-sidebar").textContent = currentAdmin;
+            document.getElementById("admin-name-topbar").textContent = currentAdmin;
+
+            loadAudit();
+            loadUnreadBadge();
+            setInterval(loadAudit, 15000);
+            setInterval(loadUnreadBadge, 10000);
+        });
+
+        async function loadUnreadBadge() {
+            try {
+                const res = await fetch("/api/messages/unread-count");
+                if (!res.ok) return;
+                const data = await res.json();
+                const badge = document.getElementById("msgBadgeAdmin");
+                if (data.unread > 0) {
+                    badge.textContent = data.unread;
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadAudit() {
+            const tbody = document.getElementById("auditTableBody");
+            try {
+                const res = await fetch("/api/audit");
+                const data = await res.json();
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) window.location.href = "login.html";
+                    return;
+                }
+
+                tbody.innerHTML = data.length === 0
+                    ? `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No activity recorded yet.</td></tr>`
+                    : data.map(row => `
+                        <tr>
+                            <td>${row.timestamp}</td>
+                            <td>${row.actor}</td>
+                            <td>${row.action}</td>
+                            <td>${row.details || "—"}</td>
+                            <td>${row.ip_address}</td>
+                            <td>${row.source}</td>
+                        </tr>`).join("");
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#C1443A;">Could not load audit trail from the server.</td></tr>`;
+            }
+        }
+
+        function triggerLogout() {
+            fetch("/api/logout", { method: "POST" }).catch(() => {});
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
+
+<script>
+function toggleSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.toggle('open');
+    if (ov) ov.classList.toggle('open');
+}
+
+function closeSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.remove('open');
+    if (ov) ov.classList.remove('open');
+}
+
+function toggleSidebarCollapse() {
+    var sb = document.querySelector('.sidebar');
+    if (!sb) return;
+    var collapsed = sb.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    try { localStorage.setItem('padaneSidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+}
+
+(function restoreSidebarCollapse() {
+    try {
+        if (localStorage.getItem('padaneSidebarCollapsed') === '1' && window.innerWidth > 900) {
+            var sb = document.querySelector('.sidebar');
+            if (sb) sb.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

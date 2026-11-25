@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PADANE REGISTER</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --brand-50: #F0F6F2;
+    --brand-600: #1F5C56;
+    --brand-700: #163F3B;
+    --slate-50: #F7F3EA;
+    --slate-100: #EFE7D6;
+    --slate-200: #E4DAC5;
+    --slate-400: #A79C89;
+    --slate-800: #2A2318;
+    --slate-950: #16211F;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+body {
+    background: var(--slate-100);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.container {
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: 24px;
+    padding: 40px 34px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, .08);
+}
+
+.logo { text-align: center; margin-bottom: 8px; }
+.logo .icon-box {
+    width: 44px; height: 44px; border-radius: 14px; background: var(--brand-600);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
+    box-shadow: 0 8px 18px rgba(31,92,86,.25);
+}
+.logo h1 { font-family: 'Fraunces', serif; color: var(--slate-950); font-size: 20px; font-weight: 800; letter-spacing: .01em; }
+.logo p { color: var(--slate-400); font-size: 12px; margin-top: 6px; line-height: 1.4; padding: 0 10px; font-weight: 600; }
+
+h2 { text-align: center; margin: 20px 0 22px; font-size: 15px; font-weight: 700; color: var(--slate-800); font-family: 'Fraunces', serif; }
+
+.input-group { position: relative; margin-bottom: 12px; }
+.input-group i.left-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 13px; }
+.input-group i.right-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 13px; cursor: pointer; }
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate-800);
+    transition: .15s ease;
+}
+.has-right-icon { padding-right: 38px !important; }
+input[type="text"]:focus, input[type="password"]:focus {
+    outline: none; border-color: var(--brand-600); background: #fff; box-shadow: 0 0 0 3px var(--brand-50);
+}
+input::placeholder { color: #A79C89; font-weight: 500; }
+
+.checkbox-group { display: flex; align-items: center; margin-bottom: 18px; margin-top: 4px; }
+.checkbox-group input[type="checkbox"] { width: 14px; height: 14px; margin-right: 8px; accent-color: var(--brand-600); cursor: pointer; }
+.checkbox-group label { font-size: 12px; color: var(--slate-800); font-weight: 600; cursor: pointer; }
+
+button {
+    width: 100%;
+    background: var(--brand-600);
+    color: white;
+    border: none;
+    padding: 13px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: .15s ease;
+    box-shadow: 0 8px 18px rgba(31,92,86,.25);
+}
+button:hover { background: var(--brand-700); }
+
+.login { text-align: center; margin-top: 20px; font-size: 12px; color: var(--slate-400); font-weight: 600; }
+.login a { color: var(--brand-600); text-decoration: none; font-weight: 700; }
+.login a:hover { text-decoration: underline; }
+</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">
+        <div class="icon-box"><i class="fa-solid fa-shield-halved" style="color:#fff;font-size:17px;"></i></div>
+        <h1>PADANE 4.0</h1>
+        <a href="usermanual.html" style="font-size:12px; font-weight:600; color:var(--brand-600); text-decoration:none; display:inline-block; margin-top:4px;">&larr; Back to Home</a>
+        <p>Personalized Assistive Device and Navigational Equipment</p>
+    </div>
+
+    <h2>Create your PADANE Account</h2>
+
+    <div class="input-group">
+        <i class="fa-regular fa-user left-icon"></i>
+        <input type="text" id="fullname" placeholder="Full Name">
+    </div>
+
+    <div class="input-group">
+        <i class="fa-solid fa-location-dot left-icon"></i>
+        <input type="text" id="address" placeholder="Address">
+    </div>
+
+    <div class="input-group">
+        <i class="fa-solid fa-phone left-icon"></i>
+        <input type="text" id="contactnumber" placeholder="+639XXXXXXXXX">
+    </div>
+
+    <div class="input-group">
+        <i class="fa-regular fa-address-card left-icon"></i>
+        <input type="text" id="username" placeholder="Username">
+    </div>
+
+    <div class="input-group">
+        <i class="fa-solid fa-lock left-icon"></i>
+        <input type="password" id="password" class="has-right-icon" placeholder="Password">
+        <i class="fa-regular fa-eye-slash right-icon" onclick="toggleSinglePassword('password', this)"></i>
+    </div>
+
+    <div class="input-group">
+        <i class="fa-solid fa-lock left-icon"></i>
+        <input type="password" id="confirmPassword" class="has-right-icon" placeholder="Confirm Password">
+        <i class="fa-regular fa-eye-slash right-icon" onclick="toggleSinglePassword('confirmPassword', this)"></i>
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="showPassword" onclick="toggleAllPasswords()">
+        <label for="showPassword">Show Passwords</label>
+    </div>
+
+    <button onclick="register()">Create Account</button>
+
+    <div class="login">
+        Already have an account?
+        <a href="login.html">Sign In Instead</a>
+    </div>
+</div>
+
+<script>
+function toggleSinglePassword(inputId, iconElement) {
+    let input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+        iconElement.classList.remove("fa-eye-slash");
+        iconElement.classList.add("fa-eye");
+    } else {
+        input.type = "password";
+        iconElement.classList.remove("fa-eye");
+        iconElement.classList.add("fa-eye-slash");
+    }
+}
+
+function toggleAllPasswords() {
+    let checkbox = document.getElementById("showPassword");
+    let inputs = [document.getElementById("password"), document.getElementById("confirmPassword")];
+    let icons = document.querySelectorAll(".right-icon");
+
+    inputs.forEach((input, index) => {
+        if (checkbox.checked) {
+            input.type = "text";
+            if(icons[index]) {
+                icons[index].classList.remove("fa-eye-slash");
+                icons[index].classList.add("fa-eye");
+            }
+        } else {
+            input.type = "password";
+            if(icons[index]) {
+                icons[index].classList.remove("fa-eye");
+                icons[index].classList.add("fa-eye-slash");
+            }
+        }
+    });
+}
+
+async function register() {
+    let fullname = document.getElementById("fullname").value.trim();
+    let address = document.getElementById("address").value.trim();
+    let contactnumber = document.getElementById("contactnumber").value.trim();
+    let username = document.getElementById("username").value.trim();
+    let password = document.getElementById("password").value;
+    let confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (!fullname || !address || !contactnumber || !username || !password) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+    }
+
+    const payload = { fullname, address, contactnumber, username, password };
+
+    try {
+        const response = await fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("Registration Successful! You can now log in.");
+            window.location.href = "login.html";
+        } else {
+            const data = await response.json();
+            alert(data.error || "Registration failed. Try a different username.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Cannot connect to server. Ensure your backend is running.");
+    }
+}
+</script>
+
+</body>
+</html>

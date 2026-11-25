@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/theme-loader.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE - Admin Control Center</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #F5F0E4;
+            --sidebar-bg: var(--pd-sidebar, #16211F);
+            --sidebar-active: var(--pd-brand, #1F5C56);
+            --text-dark: var(--pd-ink, #2A2318);
+            --text-muted: var(--pd-ink-muted, #766B5A);
+            --border-color: #E4DAC5;
+            --primary-blue: var(--pd-brand, #1F5C56);
+            --alert-red: #C1443A;
+            --alert-orange: var(--pd-amber, #D98E2B);
+            --success-green: #3F8F5B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            display: flex;
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR SYSTEM --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0 10px 0;
+            z-index: 100;
+            color: #D8CBAE;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            margin-bottom: 25px;
+            flex-shrink: 0;
+        }
+
+        .logo-icon-box {
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text p {
+            color: #A79C89;
+            font-size: 11px;
+        }
+
+
+        .menu-scroll {
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 20px;
+        }
+
+        .menu-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .menu-scroll::-webkit-scrollbar-thumb {
+            background: #1E332E;
+            border-radius: 4px;
+        }
+
+        .nav-group-title {
+            color: var(--pd-ink-muted, #766B5A);
+            padding: 15px 20px 5px 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px; margin: 2px 10px; border-radius: 10px; width: calc(100% - 20px);
+            color: #A79C89;
+            text-decoration: none;
+            font-size: 13.5px;
+            transition: 0.2s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: white;
+            background: var(--sidebar-active);
+        }
+
+        .nav-item.active { box-shadow: 0 4px 10px rgba(31,92,86,.35); border-radius: 10px; margin: 2px 10px; width: calc(100% - 20px); }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-left i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .badge-orange {
+            background: var(--alert-orange);
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #1E332E;
+            padding: 15px 20px 5px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            background-color: var(--sidebar-bg);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #E4DAC5;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .sidebar-footer .avatar {
+            background: #4FA79B;
+            color: #1B160E;
+        }
+
+        .user-meta h4 {
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-meta p {
+            color: #A79C89;
+            font-size: 11px;
+        }
+
+        /* --- MAIN VIEWPORTS --- */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- TOP HEADER NAVIGATION --- */
+        .top-navbar {
+            background: white;
+            height: 65px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .search-container {
+            position: relative;
+            width: 350px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border-color);
+            background: var(--pd-paper, #F7F3EA);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .nav-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-icon-box {
+            position: relative;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .noti-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--alert-red);
+            color: white;
+            font-size: 9px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* --- APPLICATION DASHBOARD GRID --- */
+        .workspace-panel {
+            padding: 30px;
+            flex: 1; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+
+        .view-title-block {
+            margin-bottom: 25px;
+        }
+
+        .view-title-block h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .dashboard-grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .card-head-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-mini-flex {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .metric-mini-box {
+            background: var(--pd-paper, #F7F3EA);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px 14px;
+            flex: 1; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+
+        .metric-mini-box p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metric-mini-box h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .mock-chart-graphic {
+            height: 110px;
+            background: linear-gradient(180deg, #EEF4F2 0%, #ffffff 100%);
+            border: 1px dashed #C6DEDA;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .incident-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #EFE7D6;
+        }
+
+        .incident-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .card-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .card-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+
+        .card-table td {
+            padding: 10px 4px;
+            border-bottom: 1px solid #EFE7D6;
+            color: #3A3226; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+
+        .status-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .btn-primary-sm {
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .alert-strip {
+            background: #FBF1EC;
+            border: 1px solid #F5DED9;
+            border-left: 4px solid var(--alert-red);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12.5px;
+        }
+
+        .alert-strip-orange {
+            background: #FBF3E4;
+            border: 1px solid #F6E6C8;
+            border-left: 4px solid var(--alert-orange);
+        }
+
+        .btn-action-outline {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+    
+        /* Responsive sidebar */
+        .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; margin-right: 14px; }
+        .hamburger-btn:hover { background: #EFE7D6; }
+        .hamburger-btn svg { width: 22px; height: 22px; color: var(--text-dark, var(--pd-ink, #2A2318)); display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(2,6,23,.55); z-index: 90; }
+        .sidebar-overlay.open { display: block; }
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform .25s ease; z-index: 110; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger-btn { display: inline-flex; align-items: center; justify-content: center; }
+            .main-content { margin-left: 0 !important; }
+            .search-container { display: none; }
+        }
+                
+        /* SIDEBAR COLLAPSE / CLOSE CONTROLS */
+        .sidebar-controls { display: flex; justify-content: flex-end; align-items: center; padding: 12px 14px 0; gap: 6px; flex-shrink: 0; }
+        .sidebar-toggle-btn, .sidebar-close-btn { background: rgba(255,255,255,0.06); border: none; color: #C7D6CE; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s ease; flex-shrink: 0; }
+        .sidebar-toggle-btn:hover, .sidebar-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .sidebar-toggle-btn svg, .sidebar-close-btn svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
+        .sidebar-close-btn { display: none; }
+
+        .sidebar { transition: width .2s ease; }
+        .main-content { transition: margin-left .2s ease; }
+
+        .sidebar.collapsed { width: 76px !important; }
+        .sidebar.collapsed .sidebar-controls { justify-content: center; padding: 12px 6px 0; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+
+        /* --- THE FIX: Hide logo, text, badges, and logout icon when collapsed --- */
+        .sidebar.collapsed .logo-section,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .badge-orange,
+        .sidebar.collapsed .user-meta,
+        .sidebar.collapsed .sidebar-footer i { 
+            display: none !important; 
+        }
+
+        /* Center the logo container when collapsed */
+        .sidebar.collapsed .logo-section { justify-content: center !important; padding: 0 8px !important; }
+
+        /* Keep icon size consistent at 20px (matching your other navigation icons) */
+        .sidebar.collapsed .logo-icon-box { font-size: 20px !important; }
+
+        .sidebar.collapsed .nav-item { justify-content: center; margin: 2px 8px; width: calc(100% - 16px); }
+        .sidebar.collapsed .nav-left { gap: 0; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; padding: 20px 8px; }
+
+        /* Shift main content when sidebar collapses */
+        body.sidebar-collapsed .main-content { margin-left: 76px !important; }
+
+        /* Shift the navigation menu down when sidebar is collapsed */
+        .sidebar.collapsed .menu-scroll {
+            margin-top: 40px; /* Adjust this value to set how far down the icons move */
+        }
+
+        @media (max-width: 900px) {
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-close-btn { display: flex; }
+            body.sidebar-collapsed .main-content { margin-left: 0 !important; }
+        }
+
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-controls">
+            <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu" title="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="logo-section">
+            <div class="logo-icon-box">
+                <i class="fa-solid fa-tower-broadcast"></i>
+            </div>
+            <div class="logo-text">
+                <h1>PADANE System</h1>
+                <p>Assistive & Navigational</p>
+            </div>
+        </div>
+
+        <div class="menu-scroll">
+            <div class="nav-group-title">Main</div>
+            <a href="admin.html" class="nav-item active">
+                <div class="nav-left">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </div>
+            </a>
+            <a href="device_management.html" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>Device Management</span>
+                </div>
+            </a>
+
+            <div class="nav-group-title">Management</div>
+            <a href="user_profiles.html" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>User Profiles</span>
+                </div>
+            </a>
+            
+            <a href="real_alert.html" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Real-time Alerts</span>
+                </div>
+            </a>
+            <a href="audit_trail.html" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Audit Trail</span>
+                </div>
+            </a>
+
+            <div class="nav-group-title">System</div>
+            <a href="user_setting.html" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>User Settings</span>
+                </div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>Support</span>
+                </div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-left">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>System Config</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">AR</div>
+            <div class="user-meta"> <!-- This class must match the CSS -->
+                <h4 id="admin-name-sidebar">Amara Reyes</h4>
+                <p>System Administrator</p>
+            </div>
+            <i class="fa-solid fa-right-from-bracket" onclick="triggerLogout()" style="margin-left: auto; cursor: pointer; color: var(--pd-ink-muted, #766B5A);"></i>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-navbar">
+            <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search devices, alerts, users...">
+            </div>
+            <div class="nav-right-actions">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar" style="background: #E4DAC5; color: var(--text-dark);">AR</div>
+                    <div class="user-meta" style="color: var(--text-dark);">
+                        <h4 id="admin-name-topbar" style="color: var(--text-dark);">Amara Reyes</h4>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace-panel">
+            <div class="view-title-block">
+                <h2>System Overview & Administration</h2>
+            </div>
+
+            <div class="dashboard-grid-container">
+                
+                <div class="dashboard-card">
+                    <div class="card-head-title">Main Dashboard</div>
+                    <div class="metric-mini-flex">
+                        <div class="metric-mini-box">
+                            <p>Total Devices Active</p>
+                            <h3 id="metricDevices">--</h3>
+                        </div>
+                        <div class="metric-mini-box">
+                            <p>Open Alerts</p>
+                            <h3 id="metricAlerts" style="color: var(--alert-red);">--</h3>
+                        </div>
+                    </div>
+                    <div class="mock-chart-graphic">
+                        <i class="fa-solid fa-users" style="margin-right: 8px;"></i> <span id="metricUsers">--</span> registered PADANE users
+                    </div>
+                    <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Top Incidents</div>
+                    <div id="topIncidentsList">
+                        <p style="font-size:12px;color:var(--text-muted);">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-head-title">
+                        <span>Device Management</span>
+                        <a href="device_management.html" class="btn-primary-sm" style="text-decoration:none;">View All</a>
+                    </div>
+                    <table class="card-table">
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Status</th>
+                                <th>Last Location</th>
+                                <th>Paired User</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashDeviceTable">
+                            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-head-title">User Profiles</div>
+                    <div style="font-size: 12px; line-height: 1.6;">
+                        <div style="font-weight: 600; margin-bottom: 2px;" id="adminBioName">Loading...</div>
+                        <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 12px;">Administrator</div>
+
+                        <div style="color: var(--text-muted); font-size: 10px; font-weight:600; text-transform:uppercase;">Contact Info</div>
+                        <div style="margin-bottom: 10px;" id="adminBioContact"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 6px;"></i>--</div>
+
+                        <div style="color: var(--text-muted); font-size: 10px; font-weight:600; text-transform:uppercase;">Directory</div>
+                        <p style="color: var(--text-muted); font-size: 11.5px;"><a href="user_profiles.html">View the full user directory &rarr;</a></p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-head-title">Real-time Alerts</div>
+                    <div id="realtimeAlertsList">
+                        <p style="font-size:12px;color:var(--text-muted);">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-head-title">Incident Reports</div>
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Alerts resolved by administrators are logged automatically to the Audit Trail below.</p>
+                    <div style="font-size: 11px; font-weight:600; text-transform:uppercase; color: var(--text-muted); margin-bottom: 6px;">Quick Links</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0;">
+                        <a href="audit_trail.html" style="color: var(--primary-blue); text-decoration: none;"><i class="fa-solid fa-clipboard-list"></i> Full Audit Trail</a>
+                        <a href="support-help.html" style="color: var(--primary-blue); text-decoration: none;"><i class="fa-solid fa-headset"></i> Support Queue</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-head-title">Audit Trail</div>
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Timeline Events</div>
+                    <table class="card-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Actor</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashAuditTable">
+                            <tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("loggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+            const currentAdmin = sessionStorage.getItem("username") || "Amara Reyes";
+            document.getElementById("admin-name-sidebar").textContent = currentAdmin;
+            document.getElementById("admin-name-topbar").textContent = currentAdmin;
+
+            loadDashboard();
+            loadUnreadBadge();
+            setInterval(loadDashboard, 15000); // keep the admin console live without a manual refresh
+            setInterval(loadUnreadBadge, 10000);
+        });
+
+        function statusDotColor(status) {
+            if (status === "Critical") return "var(--alert-red)";
+            if (status === "Paired") return "#4FA79B";
+            return "var(--success-green)";
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch("/api/dashboard/summary");
+                const data = await res.json();
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) window.location.href = "login.html";
+                    return;
+                }
+
+                document.getElementById("metricDevices").textContent = data.total_devices;
+                document.getElementById("metricAlerts").textContent = data.open_alerts;
+                document.getElementById("metricUsers").textContent = data.total_users;
+
+                const currentAdmin = sessionStorage.getItem("username") || "Administrator";
+                const contact = sessionStorage.getItem("emergencyContact") || "--";
+                document.getElementById("adminBioName").textContent = currentAdmin;
+                document.getElementById("adminBioContact").innerHTML = `<i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 6px;"></i>${contact}`;
+
+                const openAlerts = data.recent_alerts.filter(a => a.status === "open");
+                const incidentsEl = document.getElementById("topIncidentsList");
+                incidentsEl.innerHTML = openAlerts.length === 0
+                    ? `<p style="font-size:12px;color:var(--text-muted);">No active incidents.</p>`
+                    : openAlerts.slice(0, 3).map(a => `
+                        <div class="incident-list-item">
+                            <i class="fa-solid fa-circle-exclamation" style="color: ${a.alert_type === 'sos_hardware' ? 'var(--alert-red)' : 'var(--alert-orange)'};"></i>
+                            <span>${a.fullname} — ${a.alert_type === 'sos_hardware' ? 'SOS Trigger' : 'Caregiver Broadcast'} (${a.created_at})</span>
+                        </div>`).join("");
+
+                const alertsEl = document.getElementById("realtimeAlertsList");
+                alertsEl.innerHTML = data.recent_alerts.length === 0
+                    ? `<p style="font-size:12px;color:var(--text-muted);">No alerts yet.</p>`
+                    : data.recent_alerts.map(a => `
+                        <div class="alert-strip ${a.status === 'resolved' ? '' : 'alert-strip-orange'}" style="${a.status === 'resolved' ? 'opacity:0.55;' : ''}">
+                            <div>
+                                <div style="font-weight: 600;">${a.fullname} - ${a.alert_type === 'sos_hardware' ? 'Emergency SOS' : 'Caregiver Broadcast'}</div>
+                                <div style="font-size: 10px; color: var(--text-muted);">
+                                    Timestamp: ${a.created_at} ·
+                                    ${a.status === 'resolved'
+                                        ? 'Resolved by ' + a.resolved_by
+                                        : (a.acknowledged ? `🟡 Responding — ${a.acknowledged_by}` : 'Open')}
+                                </div>
+                            </div>
+                            ${a.status === 'resolved' ? '' : `
+                                <div style="display:flex; gap:6px;">
+                                    ${a.acknowledged ? '' : `<button class="btn-action-outline" onclick="acknowledgeAlert(${a.id})">I'm Responding</button>`}
+                                    <button class="btn-action-outline" onclick="resolveAlert(${a.id})">Resolve</button>
+                                    <button class="btn-action-outline" onclick="window.location.href='messages.html?user_id=${a.user_id}'">Message</button>
+                                </div>`}
+                        </div>`).join("");
+
+                const deviceBody = document.getElementById("dashDeviceTable");
+                deviceBody.innerHTML = data.devices.length === 0
+                    ? `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">No devices yet.</td></tr>`
+                    : data.devices.map(d => `
+                        <tr>
+                            <td>${d.device_serial}</td>
+                            <td><span class="status-dot" style="background: ${statusDotColor(d.status)};"></span>${d.status}</td>
+                            <td>${d.last_address || "—"}</td>
+                            <td>${d.fullname}</td>
+                        </tr>`).join("");
+
+                const auditBody = document.getElementById("dashAuditTable");
+                auditBody.innerHTML = data.recent_audit.length === 0
+                    ? `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No activity yet.</td></tr>`
+                    : data.recent_audit.map(row => `
+                        <tr>
+                            <td>${row.timestamp}</td>
+                            <td>[${row.actor}]</td>
+                            <td>${row.action}${row.details ? " — " + row.details : ""}</td>
+                        </tr>`).join("");
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function resolveAlert(id) {
+            const res = await fetch(`/api/alerts/${id}/resolve`, { method: "POST" });
+            if (res.ok) loadDashboard();
+        }
+
+        async function acknowledgeAlert(id) {
+            const res = await fetch(`/api/alerts/${id}/acknowledge`, { method: "POST" });
+            const data = await res.json();
+            if (res.ok) {
+                loadDashboard();
+            } else {
+                alert(data.error || "Could not acknowledge alert.");
+            }
+        }
+
+        async function loadUnreadBadge() {
+            try {
+                const res = await fetch("/api/messages/unread-count");
+                if (!res.ok) return;
+                const data = await res.json();
+                const badge = document.getElementById("msgBadgeAdmin");
+                if (data.unread > 0) {
+                    badge.textContent = data.unread;
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function triggerLogout() {
+            fetch("/api/logout", { method: "POST" }).catch(() => {});
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
+
+<script>
+function toggleSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.toggle('open');
+    if (ov) ov.classList.toggle('open');
+}
+
+function closeSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.remove('open');
+    if (ov) ov.classList.remove('open');
+}
+
+function toggleSidebarCollapse() {
+    var sb = document.querySelector('.sidebar');
+    if (!sb) return;
+    var collapsed = sb.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    try { localStorage.setItem('padaneSidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+}
+
+(function restoreSidebarCollapse() {
+    try {
+        if (localStorage.getItem('padaneSidebarCollapsed') === '1' && window.innerWidth > 900) {
+            var sb = document.querySelector('.sidebar');
+            if (sb) sb.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

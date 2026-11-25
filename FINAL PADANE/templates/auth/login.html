@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE LOG IN</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-50: #F0F6F2;
+            --brand-600: #1F5C56;
+            --brand-700: #163F3B;
+            --slate-50: #F7F3EA;
+            --slate-100: #EFE7D6;
+            --slate-200: #E4DAC5;
+            --slate-400: #A79C89;
+            --slate-800: #2A2318;
+            --slate-950: #16211F;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Fraunces', 'Inter', serif; }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--slate-100);
+            color: var(--slate-800);
+        }
+
+        /* Left branding panel, matches the app's dark hero column */
+        .brand-panel {
+            display: none;
+            width: 55%;
+            background: var(--slate-950);
+            color: #fff;
+            padding: 56px;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        @media (min-width: 860px) { .brand-panel { display: flex; } }
+
+        .brand-mark { display: flex; align-items: center; gap: 12px; }
+        .brand-mark .icon-box {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--brand-600); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(31,92,86,.35);
+        }
+        .brand-mark h1 { font-weight: 800; font-size: 20px; letter-spacing: .02em; }
+
+        .brand-copy { max-width: 520px; }
+        .brand-copy h2 { font-weight: 800; font-size: 40px; line-height: 1.15; color: #EFE7D6; margin-bottom: 16px; }
+        .brand-copy p { color: var(--slate-400); font-size: 14px; line-height: 1.7; }
+
+        .brand-foot { font-size: 11px; color: #766B5A; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+
+        .brand-decor {
+            position: absolute; right: -120px; top: 50%; transform: translateY(-50%);
+            width: 480px; height: 480px; opacity: .06; pointer-events: none;
+        }
+
+        /* Right form column */
+        .form-panel {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 32px;
+        }
+
+        .card {
+            width: 100%; max-width: 420px; background: #fff;
+            border: 1px solid var(--slate-200); border-radius: 24px;
+            padding: 36px 32px; box-shadow: 0 20px 45px rgba(15, 23, 42, .08);
+        }
+
+        .card-heading h2 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; color: var(--slate-950); }
+        .card-heading p { font-size: 12px; font-weight: 600; color: var(--slate-400); margin-top: 4px; margin-bottom: 24px; }
+
+        .group { position: relative; margin-bottom: 14px; }
+        .group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 13px; }
+
+        input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate-800);
+            transition: .15s ease;
+        }
+        input:focus { outline: none; border-color: var(--brand-600); background: #fff; box-shadow: 0 0 0 3px var(--brand-50); }
+        input::placeholder { color: #A79C89; font-weight: 500; }
+
+        button {
+            width: 100%;
+            background: var(--brand-600);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .15s ease;
+            margin-top: 6px;
+            box-shadow: 0 8px 18px rgba(31,92,86,.25);
+        }
+        button:hover { background: var(--brand-700); }
+
+        .bottom { margin-top: 22px; text-align: center; font-size: 12px; color: var(--slate-400); font-weight: 600; }
+        .bottom a { color: var(--brand-600); text-decoration: none; font-weight: 700; }
+        .bottom a:hover { text-decoration: underline; }
+
+        .mobile-logo { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; }
+        .mobile-logo .icon-box { width: 44px; height: 44px; border-radius: 14px; background: var(--brand-600); display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 8px; }
+        .mobile-logo h1 { font-family: 'Fraunces', serif; font-weight: 800; font-size: 16px; color: var(--slate-950); }
+        @media (min-width: 860px) { .mobile-logo { display: none; } }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+<div class="brand-panel">
+    <a href="usermanual.html" class="brand-mark" style="text-decoration:none;">
+        <div class="icon-box"><i class="fa-solid fa-shield-halved" style="color:#fff;font-size:16px;"></i></div>
+        <h1 class="font-display">PADANE Systems</h1>
+    </a>
+    <div class="brand-copy">
+        <h2 class="font-display">Adaptive Safety &amp; Telemetry, redesigned.</h2>
+        <p>PADANE links your assistive walking-stick hardware with a live tracking dashboard &mdash; instant SOS alerts, caregiver loops, and full diagnostic logs.</p>
+    </div>
+    <div class="brand-foot">&copy; 2026 PADANE Assistive Frameworks Inc.</div>
+    <svg class="brand-decor" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>
+</div>
+
+<div class="form-panel">
+    <div class="card">
+        <div class="mobile-logo">
+            <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+            <h1>PADANE 4.0</h1>
+            <a href="usermanual.html" style="font-size:12px; font-weight:600; color:var(--brand-600); text-decoration:none; margin-top:6px; display:inline-block;">&larr; Back to Home</a>
+        </div>
+
+        <div class="card-heading">
+            <h2>Secure Session Authentication</h2>
+            <p>Please enter your verified credentials</p>
+        </div>
+
+        <div class="group">
+            <i class="fa-regular fa-address-card"></i>
+            <input type="text" id="username" placeholder="Username" autocomplete="off">
+        </div>
+
+        <div class="group">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" placeholder="Password">
+        </div>
+
+        <button onclick="login()">Log In</button>
+
+        <div class="bottom">
+            Don't have an account?
+            <a href="register.html">Create account</a>
+        </div>
+    </div>
+</div>
+
+<script>
+async function login() {
+    const usernameInput = document.getElementById("username").value.trim();
+    const passwordInput = document.getElementById("password").value;
+
+    if (!usernameInput || !passwordInput) {
+        alert("Please enter both username and password.");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                username: usernameInput, 
+                password: passwordInput 
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            sessionStorage.setItem("loggedIn", "true");
+            sessionStorage.setItem("username", data.name || "User"); 
+            sessionStorage.setItem("userLoginName", usernameInput); 
+            sessionStorage.setItem("userId", data.user_id || "");
+            sessionStorage.setItem("emergencyContact", data.emergency_contact || "");
+            
+            const userRole = data.role || "user";
+            sessionStorage.setItem("role", userRole);
+
+            if (userRole === "admin") {
+                window.location.href = "admin.html";
+            } else {
+                window.location.href = "index.html";
+            }
+        } else {
+            alert(data.error || "Incorrect username or password.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Cannot connect to server. Ensure your Python backend is running.");
+    }
+}
+</script>
+
+</body>
+</html>

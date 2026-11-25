@@ -1,0 +1,117 @@
+/* ==========================================================================
+   PADANE — shared design system
+   "Warm ink & amber" — a calm, high-contrast palette for a caregiver /
+   assistive-device safety product. Paper-warm surfaces, deep pine-teal
+   brand color, and a single amber "beacon" accent reserved for anything
+   that signals attention (SOS, alerts, live status).
+   Loaded on every page, after each page's own inline styles, so it can
+   safely refine typography and add shared motifs without fighting
+   per-page overrides.
+   ========================================================================== */
+
+:root {
+    /* ink / paper neutrals */
+    --pd-paper:      #F7F3EA;
+    --pd-paper-alt:  #F1EADC;
+    --pd-card:       #FFFEFA;
+    --pd-border:     #E4DAC5;
+    --pd-border-soft:#EFE7D6;
+    --pd-ink:        #2A2318;
+    --pd-ink-muted:  #766B5A;
+    --pd-ink-faint:  #A79C89;
+    --pd-sidebar:    #16211F;
+    --pd-sidebar-alt:#1E332E;
+
+    /* brand */
+    --pd-brand:       #1F5C56;
+    --pd-brand-dark:  #163F3B;
+    --pd-brand-tint:  #DCEAE4;
+
+    /* the one accent — reserved for alerts, live signals, primary emphasis */
+    --pd-amber:       #D98E2B;
+    --pd-amber-dark:  #B9721A;
+    --pd-amber-tint:  #F6E6C8;
+
+    /* semantic */
+    --pd-danger:      #C1443A;
+    --pd-success:     #3F8F5B;
+
+    --pd-font-display: 'Fraunces', 'Inter', serif;
+    --pd-font-body:    'Inter', sans-serif;
+    --pd-font-mono:    'IBM Plex Mono', monospace;
+}
+
+/* ---- Typography: give display text the warm serif, body stays Inter ---- */
+h1, h2, h3,
+.logo-text h1, .mobile-logo h1, .logo h1,
+.top-header h2, .title-bar h2, .card-heading h2,
+.embed-card-head h3, .brand-copy h2, .card-value,
+.font-display {
+    font-family: var(--pd-font-display) !important;
+    letter-spacing: -0.01em;
+}
+
+/* Serials, timestamps, coordinates and other data-like text read better in mono */
+.mono, code, .device-serial, .serial, td.serial-cell {
+    font-family: var(--pd-font-mono);
+    letter-spacing: 0.01em;
+}
+
+/* ---- Accessibility: this product is used by elderly / PWD caregivers,
+   so a clear, warm focus ring matters more than usual ---- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.nav-item:focus-visible {
+    outline: 3px solid var(--pd-amber);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+::selection {
+    background: var(--pd-amber-tint);
+    color: var(--pd-ink);
+}
+
+/* ---- Warm scrollbars, quiet by default ---- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--pd-border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--pd-ink-faint); }
+
+/* ==========================================================================
+   Signature element — the "beacon"
+   A slow amber pulse anchored to the brand mark wherever it already
+   appears (.logo-icon in the app shell, .icon-box on the auth screens).
+   No markup changes required: it rides on classes that already exist
+   on every page. Meant to evoke the SOS light on the physical device —
+   present, calm, and only ever amber (the one color reserved for signal).
+   ========================================================================== */
+@keyframes pd-beacon-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(217, 142, 43, 0.45); }
+    70%  { box-shadow: 0 0 0 10px rgba(217, 142, 43, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(217, 142, 43, 0); }
+}
+
+.logo-icon, .icon-box {
+    position: relative;
+}
+.logo-icon::after, .icon-box::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--pd-amber);
+    border: 2px solid var(--pd-sidebar, #16211F);
+    animation: pd-beacon-pulse 2.6s ease-out infinite;
+}
+.icon-box::after { border-color: #FFFEFA; }
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-icon::after, .icon-box::after { animation: none; }
+}

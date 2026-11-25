@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/theme-loader.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE - Support & Help</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: var(--pd-paper, #F7F3EA);
+            --sidebar-bg: var(--pd-sidebar, #16211F); 
+            --sidebar-text: #C7D6CE;
+            --text-primary: var(--pd-ink, #2A2318);
+            --text-muted: var(--pd-ink-muted, #766B5A);
+            --primary-purple: var(--pd-brand, #1F5C56);
+            --accent-green: #3F8F5B;
+            --border-color: #E4DAC5;
+            --emergency-red: #C1443A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-main); display: flex; min-height: 100vh; color: var(--text-primary); }
+
+        /* SIDEBAR STYLES */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; z-index: 100; }
+        .sidebar-content { overflow-y: auto; flex-grow: 1; }
+        .sidebar-content::-webkit-scrollbar { display: none; }
+        
+        .logo-section { display: flex; align-items: center; gap: 12px; padding: 0 24px; margin-bottom: 30px; }
+        .logo-icon { width: 35px; height: 35px; border-radius: 8px; background: var(--primary-purple); display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+        .logo-icon svg, .nav-item svg, .sidebar-footer svg { width: 18px; height: 18px; display: block; }
+        .logo-text h1 { color: white; font-size: 18px; font-weight: 700; }
+        .logo-text p { color: var(--sidebar-text); font-size: 12px; font-weight: 500; margin-top: 2px;}
+        
+        .nav-item { display: flex; align-items: center; padding: 10px 16px; margin: 2px 12px; border-radius: 10px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s ease; width: calc(100% - 24px); }
+        .nav-item:hover { color: white; background: rgba(255, 255, 255, 0.06); }
+        .nav-item.active { color: white; background: var(--primary-purple); box-shadow: 0 4px 10px rgba(31,92,86,.35); }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .nav-group-title { color: var(--pd-brand-dark, #163F3B); padding: 0 24px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+
+        .sidebar-footer { border-top: 1px solid #24332F; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar-bg); }
+        .user-avatar-block { display: flex; align-items: center; gap: 10px; }
+        .avatar-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
+        .user-info-text h4 { color: white; font-size: 13px; font-weight: 500; }
+        .user-info-text p { color: var(--sidebar-text); font-size: 11px; }
+
+        /* MAIN LAYOUT */
+        .main-layout { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .top-header { background: white; height: 70px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+        .top-header h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .profile-dropdown { display: flex; align-items: center; gap: 10px; }
+        .avatar-circle-purple { width: 36px; height: 36px; border-radius: 50%; background: #DCEAE4; color: var(--primary-purple); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .workspace { padding: 40px; flex: 1; display: flex; flex-direction: column; gap: 30px; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+        
+        .title-bar h2 { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .title-bar p { color: var(--text-muted); font-size: 14px; }
+
+        /* PANELS CONFIGURATION */
+        .help-layout-grid { display: grid; grid-template-columns: 1.6fr 1.4fr; gap: 30px; }
+        @media (max-width: 992px) { .help-layout-grid { grid-template-columns: 1fr; } }
+
+        .help-card { background: white; border: 1px solid var(--border-color); border-radius: 20px; padding: 26px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); }
+        .panel-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #EFE7D6; padding-bottom: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+
+        /* FAQ STYLE BLOCKS */
+        .faq-item { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; padding: 14px; background: #F9F6EF; }
+        .faq-question { font-weight: 600; font-size: 14px; color: var(--primary-purple); margin-bottom: 6px; }
+        .faq-answer { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+        /* FORMS */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px 14px; border: 1px solid #D8CBAE; border-radius: 8px; font-size: 14px; color: var(--text-primary); }
+        
+        .btn-submit { background: linear-gradient(135deg, var(--primary-purple), var(--pd-brand, #1F5C56)); color: white; border: none; padding: 12px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; display: block; width: 100%; transition: 0.2s; }
+        .btn-submit:hover { opacity: 0.95; }
+
+        /* EXCLUSIVE ADMIN QUEUE PANEL */
+        .admin-queue-view { display: none; background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; }
+        .ticket-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 12px; transition: 0.2s; }
+        .ticket-row:hover { background-color: var(--pd-paper, #F7F3EA); border-color: #D8CBAE; }
+        .ticket-meta h4 { font-size: 14px; font-weight: 600; }
+        .ticket-meta p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .ticket-badge { background: #F5DED9; color: var(--emergency-red); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; }
+        .action-btn-group { display: flex; gap: 8px; }
+        .btn-action { padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); background: white;}
+        .btn-action.resolve-btn { background: #E1EEDD; color: #2E6E3F; border-color: #C3E0BE; }
+    
+        /* Responsive sidebar */
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; }
+        .hamburger-btn:hover { background: #EFE7D6; }
+        .hamburger-btn svg { width: 22px; height: 22px; color: var(--text-primary); display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(2,6,23,.55); z-index: 90; }
+        .sidebar-overlay.open { display: block; }
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform .25s ease; z-index: 110; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger-btn { display: inline-flex; align-items: center; justify-content: center; }
+            .main-layout { margin-left: 0 !important; }
+        }
+
+        /* SIDEBAR COLLAPSE / CLOSE CONTROLS */
+        .sidebar-controls { display: flex; justify-content: flex-end; align-items: center; padding: 8px 14px 0; gap: 6px; flex-shrink: 0; }
+        .sidebar-toggle-btn, .sidebar-close-btn { background: rgba(255,255,255,0.06); border: none; color: var(--sidebar-text, #C7D6CE); width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s ease; flex-shrink: 0; }
+        .sidebar-toggle-btn:hover, .sidebar-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .sidebar-toggle-btn svg, .sidebar-close-btn svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
+        .sidebar-close-btn { display: none; }
+
+        .sidebar, .main-layout { transition: width .2s ease, margin-left .2s ease; }
+        .sidebar.collapsed { width: 76px; }
+        .sidebar.collapsed .sidebar-controls { justify-content: center; padding: 12px 6px 0; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text { display: none; }
+        .sidebar.collapsed .logo-section { justify-content: center; padding: 0 8px; }
+        .sidebar.collapsed .nav-item { justify-content: center; margin: 2px 8px; width: calc(100% - 16px); }
+        .sidebar.collapsed .nav-left { gap: 0; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; padding: 20px 8px; }
+        .sidebar.collapsed .logo-icon { display: none; }
+        .sidebar.collapsed .logo-icon,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text { display: none; }  
+        .sidebar.collapsed .sidebar-footer svg { display: none; } 
+        .sidebar.collapsed .logo-icon,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text,
+        .sidebar.collapsed .sidebar-footer svg { display: none; }
+        body.sidebar-collapsed .main-layout { margin-left: 76px; }
+
+        @media (max-width: 900px) {
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-close-btn { display: flex; }
+            body.sidebar-collapsed .main-layout { margin-left: 0 !important; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-controls">
+            <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <!-- New Icon matching the requested style -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu" title="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <div class="logo-section">
+                <div class="logo-icon"> 
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="logo-text">
+                    <h1>PADANE</h1>
+                    <p class="user-role-label">Client Account</p>
+                </div>
+            </div>
+
+            <div class="nav-group-title">User Console</div>
+            <a href="index.html" class="nav-item"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg><span>Overview Dashboard</span></div></a>
+            <a href="trigger.html" class="nav-item"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span>Device Tracking</span></div></a>
+            <a href="nearest-help.html" class="nav-item"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg><span>Direct to nearest help</span></div></a>
+            <a href="alert-caregivers.html" class="nav-item"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Alert All Caregivers</span></div></a>
+            <a href="server-ping.html" class="nav-item"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg><span>Live Server Ping</span></div></a>
+            <a href="account-settings.html" class="nav-item"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>Account Settings</span></div></a>
+            <a href="support-help.html" class="nav-item active"><div class="nav-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>Support & Help</span></div></a>
+
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar-block">
+                <div class="avatar-circle user-initials-display">--</div>
+                <div class="user-info-text">
+                    <h4 class="user-name-display">Loading...</h4>
+                    <p class="user-role-subtext">Client User</p>
+                </div>
+            </div>
+            <svg onclick="handleLogout()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sidebar-text); cursor:pointer;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+    </aside>
+
+    <div class="main-layout">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+                <h2 id="headerContextTitle">Framework Support Center</h2>
+            </div>
+            <div class="profile-dropdown">
+                <div class="avatar-circle-purple user-initials-display">--</div>
+                <h4 class="user-name-display" style="font-weight: 600;">Loading...</h4>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <div class="title-bar">
+                <h2 id="pageContextTitle">Support Hub & Operations</h2>
+                <p id="pageContextDesc">Review system operation diagnostics documentation or transmit priority assistance files directly to our engineering grid.</p>
+            </div>
+
+            <div class="help-layout-grid" id="standardUserView">
+                <div class="help-card">
+                    <h3 class="panel-title">📚 Frequently Answered Logs</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">Why does the walking stick map dashboard showcase "GPS Unsupported"?</div>
+                        <div class="faq-answer">Ensure browser location authorization prompts are allowed. Secure HTTPS transmission encryption is required for HTML Geolocation streaming layers.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">What does the "Continuous Node Loop Logs" error indicate in server ping?</div>
+                        <div class="faq-answer">It represents an active diagnostic stream evaluated against network gateways. If it halts, verify hardware network configuration profiles.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">How are emergency contacts instantly changed?</div>
+                        <div class="faq-answer">Navigate to the Account Settings menu. Modifying the mobile entry updates storage tables across subsequent SOS alert runs instantly.</div>
+                    </div>
+                </div>
+
+                <div class="help-card">
+                    <h3 class="panel-title">📩 Open Engineering Assistance Request</h3>
+                    <form id="ticketForm">
+                        <div class="form-group">
+                            <label>Component Classification Target</label>
+                            <select class="form-control" id="ticketCategory">
+                                <option>IoT Walking Stick Hardware Glitch</option>
+                                <option>Dashboard Map Telemetry Desync</option>
+                                <option>SMS Broadcast Gateway Delay</option>
+                                <option>General Account Authorization Access</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Detailed Issue Diagnostics Description</label>
+                            <textarea class="form-control" id="ticketDesc" rows="4" style="resize: none;" placeholder="Provide explicit logs or actions taken..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">✈️ Transmit Ticket To Engineers</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="admin-queue-view" id="adminExclusiveView">
+                <h3 class="panel-title" style="border-bottom:none; margin-bottom:10px;">📋 System-Wide Support Ticket Queue</h3>
+                <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Review and process active requests generated across client walking stick modules globally.</p>
+                
+                <div id="queueContainer">
+                    <p style="font-size:12px;color:var(--text-muted);">Loading ticket queue...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("loggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const fullName = sessionStorage.getItem("username") || "PADANE User";
+            const userRole = sessionStorage.getItem("role") || "user";
+
+            // Setup profile imagery and display metrics
+            const nameParts = fullName.trim().split(" ");
+            let initials = "US";
+            if (nameParts.length >= 2) initials = nameParts[0][0].toUpperCase() + nameParts[nameParts.length - 1][0].toUpperCase();
+            else if (nameParts.length === 1 && nameParts[0] !== "") initials = nameParts[0][0].toUpperCase();
+
+            document.querySelectorAll(".user-name-display").forEach(el => el.textContent = fullName);
+            document.querySelectorAll(".user-initials-display").forEach(el => el.textContent = initials);
+
+            // Conditionally Swap Interfaces if Admin
+            if (userRole.toLowerCase() === "admin") {
+                document.querySelector(".user-role-label").textContent = "Root System Admin";
+                document.querySelector(".user-role-subtext").textContent = "Global Admin";
+                
+                // Content Switch Execution
+                document.getElementById("standardUserView").style.display = "none";
+                document.getElementById("adminExclusiveView").style.display = "block";
+                
+                // Adjust contextual wording
+                document.getElementById("headerContextTitle").textContent = "Core Network Operator Control Panel";
+                document.getElementById("pageContextTitle").textContent = "Global Support Queue Operations";
+                document.getElementById("pageContextDesc").textContent = "Review telemetry error escalations and assign remediation loops across client terminals.";
+            }
+
+            loadTickets();
+
+            // Ticket Submit -> persisted to the support_tickets table, visible to admins instantly
+            document.getElementById("ticketForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const description = document.getElementById("ticketDesc").value.trim();
+                const category = document.getElementById("ticketCategory").value;
+                if (!description) {
+                    alert("Please insert a diagnostic issue description before submittal.");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("/api/support/tickets", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ category, description })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        alert("Ticket successfully queued onto internal tracking database infrastructure!");
+                        document.getElementById("ticketDesc").value = "";
+                    } else {
+                        alert(data.error || "Could not submit ticket.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Cannot reach server.");
+                }
+            });
+        });
+
+        async function loadTickets() {
+            const container = document.getElementById("queueContainer");
+            try {
+                const res = await fetch("/api/support/tickets");
+                const data = await res.json();
+                if (!res.ok) {
+                    container.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">${data.error || "Could not load tickets."}</p>`;
+                    return;
+                }
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">No support tickets yet.</p>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(t => `
+                    <div class="ticket-row" id="ticket-${t.id}" style="${t.status === 'resolved' ? 'opacity:0.5;' : ''}">
+                        <div class="ticket-meta">
+                            <h4>${t.category} <span class="ticket-badge" style="${t.severity === 'High' ? '' : 'background:#F6E6C8; color:#8F5A14;'}">${t.severity}</span></h4>
+                            <p>${t.description}</p>
+                            <p style="color:var(--text-muted); font-size:11px;">Submitted by: ${t.fullname} — ${t.created_at}</p>
+                        </div>
+                        <div class="action-btn-group">
+                            ${sessionStorage.getItem("role") === "admin" && t.status !== "resolved"
+                                ? `<button class="btn-action resolve-btn" onclick="resolveTicket(${t.id})">Mark Resolved</button>`
+                                : t.status === "resolved" ? `<span style="font-size:12px; color:var(--accent-green,#3F8F5B); font-weight:600;">✓ Resolved</span>` : `<span style="font-size:12px; color:var(--text-muted);">Awaiting admin review</span>`}
+                        </div>
+                    </div>`).join("");
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p style="font-size:12px;color:#C1443A;">Could not load tickets from the server.</p>`;
+            }
+        }
+
+        async function resolveTicket(id) {
+            const res = await fetch(`/api/support/tickets/${id}/resolve`, { method: "POST" });
+            if (res.ok) {
+                alert("Ticket closed. Notification push emitted to node developer logs.");
+                loadTickets();
+            } else {
+                alert("Could not resolve ticket.");
+            }
+        }
+
+        function handleLogout() {
+            fetch("/api/logout", { method: "POST" }).catch(() => {});
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
+
+<script>
+function toggleSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.toggle('open');
+    if (ov) ov.classList.toggle('open');
+}
+
+function closeSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.remove('open');
+    if (ov) ov.classList.remove('open');
+}
+
+function toggleSidebarCollapse() {
+    var sb = document.querySelector('.sidebar');
+    if (!sb) return;
+    var collapsed = sb.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    try { localStorage.setItem('padaneSidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+}
+
+(function restoreSidebarCollapse() {
+    try {
+        if (localStorage.getItem('padaneSidebarCollapsed') === '1' && window.innerWidth > 900) {
+            var sb = document.querySelector('.sidebar');
+            if (sb) sb.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

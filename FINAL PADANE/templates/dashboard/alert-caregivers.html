@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/theme-loader.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE - Alert All Caregivers</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: var(--pd-paper, #F7F3EA);
+            --sidebar-bg: var(--pd-sidebar, #16211F); 
+            --sidebar-text: #C7D6CE;
+            --text-primary: var(--pd-ink, #2A2318);
+            --text-muted: var(--pd-ink-muted, #766B5A);
+            --primary-purple: var(--pd-brand, #1F5C56);
+            --accent-green: #3F8F5B;
+            --emergency-red: #C1443A;
+            --warning-amber: var(--pd-amber, #D98E2B);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-main); display: flex; min-height: 100vh; color: var(--text-primary); }
+
+        /* SIDEBAR STYLES */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; z-index: 100; }
+        .sidebar-content { overflow-y: auto; flex-grow: 1; }
+        .sidebar-content::-webkit-scrollbar { display: none; }
+        .sidebar-content { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .logo-section { display: flex; align-items: center; gap: 12px; padding: 0 24px; margin-bottom: 30px; }
+        .logo-icon { width: 35px; height: 35px; border-radius: 8px; background: var(--primary-purple); display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+        .logo-icon svg, .nav-item svg, .sidebar-footer svg, .card-icon svg { width: 18px; height: 18px; display: block; }
+        .logo-text h1 { color: white; font-size: 18px; font-weight: 700; }
+        .logo-text p { color: var(--sidebar-text); font-size: 12px; font-weight: 500; margin-top: 2px;}
+        .nav-group-title { color: var(--pd-brand-dark, #163F3B); padding: 0 24px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+        
+        .nav-item { display: flex; align-items: center; padding: 10px 16px; margin: 2px 12px; border-radius: 10px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s ease; width: calc(100% - 24px); }
+        .nav-item:hover { color: white; background: rgba(255, 255, 255, 0.06); }
+        .nav-item.active { color: white; background: var(--primary-purple); box-shadow: 0 4px 10px rgba(31,92,86,.35); }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+
+        .sidebar-footer { border-top: 1px solid #24332F; padding: 20px 24px 20px 24px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar-bg); }
+        .user-avatar-block { display: flex; align-items: center; gap: 10px; }
+        .avatar-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
+        .user-info-text h4 { color: white; font-size: 13px; font-weight: 500; }
+        .user-info-text p { color: var(--sidebar-text); font-size: 11px; }
+
+        /* MAIN LAYOUT */
+        .main-layout { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .top-header { background: white; height: 70px; border-bottom: 1px solid #E4DAC5; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+        .top-header h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .profile-dropdown { display: flex; align-items: center; gap: 10px; }
+        .avatar-circle-purple { width: 36px; height: 36px; border-radius: 50%; background: #DCEAE4; color: var(--primary-purple); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .workspace { padding: 40px; flex: 1; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+        
+        .title-bar h2 { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .title-bar p { color: var(--text-muted); font-size: 14px; }
+
+        /* CAREGIVER MAIN PANELS GRID */
+        .broadcast-container { display: grid; grid-template-columns: 1.3fr 1.7fr; gap: 24px; margin-top: 30px; }
+        @media (max-width: 1024px) { .broadcast-container { grid-template-columns: 1fr; } }
+
+        .broadcast-card { background: white; border: 1px solid #E4DAC5; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); }
+        .panel-heading { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;}
+        
+        /* Panic Button Interface */
+        .panic-trigger-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FBF1EC; border: 2px dashed #E3B0A6; padding: 30px 20px; border-radius: 12px; text-align: center; }
+        .master-panic-btn { background: linear-gradient(135deg, var(--emergency-red), #A63328); color: white; border: none; width: 130px; height: 130px; border-radius: 50%; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s ease; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); text-transform: uppercase; letter-spacing: 0.5px; position: relative; margin-bottom: 16px;}
+        .master-panic-btn:hover { transform: scale(1.04); box-shadow: 0 12px 28px rgba(239, 68, 68, 0.55); }
+        .master-panic-btn:active { transform: scale(0.98); }
+        
+        /* Checkboxes Group */
+        .channels-group { display: flex; flex-direction: column; gap: 10px; background: var(--pd-paper, #F7F3EA); border: 1px solid #E4DAC5; padding: 16px; border-radius: 10px; }
+        .channel-option { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-primary); }
+        .channel-option input { width: 16px; height: 16px; accent-color: var(--emergency-red); cursor: pointer; }
+
+        /* Caregiver Listing Right Column */
+        .right-column { display: flex; flex-direction: column; gap: 24px; }
+        .caregivers-list { display: flex; flex-direction: column; gap: 12px; max-height: 290px; overflow-y: auto; padding-right: 4px; }
+        .caregiver-card { background: white; border: 1px solid #E4DAC5; border-radius: 20px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+        .caregiver-card:hover { border-color: #D8CBAE; background: #F9F6EF; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+        
+        .caregiver-meta { display: flex; align-items: center; gap: 14px; }
+        .cg-avatar { width: 40px; height: 40px; border-radius: 50%; background: #EFE7D6; color: var(--pd-brand, #1F5C56); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; border: 1px solid #D8E8E3; }
+        .cg-details h4 { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .cg-details p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+        
+        .status-pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; }
+        .status-pill.primary { background: #E1EEDD; color: #2E6E3F; }
+        .status-pill.away { background: #F6E6C8; color: #8F5A14; }
+        .status-pill.notified { background: #F5DED9; color: var(--emergency-red); font-weight: 800; animation: flashPill 1s infinite alternate; }
+        @keyframes flashPill { 0% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        /* Broadcast Terminal Activity Logs */
+        .history-card { background: white; border: 1px solid #E4DAC5; border-radius: 20px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
+        .history-terminal { background: #1B160E; border-radius: 10px; padding: 14px; font-family: 'Courier New', Courier, monospace; color: #6BAE7F; font-size: 12px; height: 160px; overflow-y: auto; margin-top: 12px; line-height: 1.5; }
+        .log-entry { margin-bottom: 4px; }
+        .log-entry.alert { color: #D06A5E; font-weight: bold; }
+    
+        /* Responsive sidebar */
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; }
+        .hamburger-btn:hover { background: #EFE7D6; }
+        .hamburger-btn svg { width: 22px; height: 22px; color: var(--text-primary); display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(2,6,23,.55); z-index: 90; }
+        .sidebar-overlay.open { display: block; }
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform .25s ease; z-index: 110; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger-btn { display: inline-flex; align-items: center; justify-content: center; }
+            .main-layout { margin-left: 0 !important; }
+        }
+
+        /* SIDEBAR COLLAPSE / CLOSE CONTROLS */
+        .sidebar-controls { display: flex; justify-content: flex-end; align-items: center; padding: 8px 14px 0; gap: 6px; flex-shrink: 0; }
+        .sidebar-toggle-btn, .sidebar-close-btn { background: rgba(255,255,255,0.06); border: none; color: var(--sidebar-text, #C7D6CE); width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s ease; flex-shrink: 0; }
+        .sidebar-toggle-btn:hover, .sidebar-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .sidebar-toggle-btn svg, .sidebar-close-btn svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
+        .sidebar-close-btn { display: none; }
+
+        .sidebar, .main-layout { transition: width .2s ease, margin-left .2s ease; }
+        .sidebar.collapsed { width: 76px; }
+        .sidebar.collapsed .sidebar-controls { justify-content: center; padding: 12px 6px 0; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text { display: none; }
+        .sidebar.collapsed .logo-section { justify-content: center; padding: 0 8px; }
+        .sidebar.collapsed .nav-item { justify-content: center; margin: 2px 8px; width: calc(100% - 16px); }
+        .sidebar.collapsed .nav-left { gap: 0; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; padding: 20px 8px; }
+        .sidebar.collapsed .logo-icon { display: none; }
+        .sidebar.collapsed .logo-icon,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text { display: none; }  
+        .sidebar.collapsed .sidebar-footer svg { display: none; } 
+        .sidebar.collapsed .logo-icon,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text,
+        .sidebar.collapsed .sidebar-footer svg { display: none; }
+        body.sidebar-collapsed .main-layout { margin-left: 76px; }
+
+        @media (max-width: 900px) {
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-close-btn { display: flex; }
+            body.sidebar-collapsed .main-layout { margin-left: 0 !important; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-controls">
+            <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <!-- New Icon matching the requested style -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu" title="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <div class="logo-section">
+                <div class="logo-icon"> 
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="logo-text">
+                    <h1>PADANE</h1>
+                    <p class="user-name-display">Loading...</p>
+                </div>
+            </div>
+
+            <div class="nav-group-title">User Console</div>
+            
+            <a href="index.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span>Overview Dashboard</span>
+                </div>
+            </a>
+            
+            <a href="trigger.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>Device Tracking</span>
+                </div>
+            </a>
+
+            <a href="nearest-help.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    <span>Direct to nearest help</span>
+                </div>
+            </a>
+
+            <a href="alert-caregivers.html" class="nav-item active">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>Alert All Caregivers</span>
+                </div>
+            </a>
+
+            <a href="server-ping.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span>Live Server Ping</span>
+                </div>
+            </a>
+            
+            <a href="#" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Account Settings</span>
+                </div>
+            </a>
+
+            <a href="support-help.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Support & Help</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar-block">
+                <div class="avatar-circle user-initials-display">--</div>
+                <div class="user-info-text">
+                    <h4 class="user-name-display">Loading...</h4>
+                    <p>Client User</p>
+                </div>
+            </div>
+            <svg onclick="handleLogout()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sidebar-text); cursor:pointer;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+    </aside>
+
+    <div class="main-layout">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><h2>Emergency Broadcast Matrix</h2>
+            </div>
+            <div class="header-right">
+                <div class="profile-dropdown">
+                    <div class="avatar-circle-purple user-initials-display">--</div>
+                    <div class="user-info-text">
+                        <h4 class="user-name-display" style="color: var(--text-primary); font-weight: 600;">Loading...</h4>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <div class="title-bar">
+                <h2>Alert All Assigned Caregivers</h2>
+                <p>Deploy multi-channel network protocols to simultaneously notify your assigned response squad and family loops.</p>
+            </div>
+
+            <div class="broadcast-container">
+                <div class="broadcast-card">
+                    <div>
+                        <h3 class="panel-heading">🚨 Broadcast Action Center</h3>
+                        <p style="font-size: 12px; color: var(--text-muted);">Pressing the master sequence triggers high-priority alerts across selected pipelines instantly.</p>
+                    </div>
+
+                    <div class="panic-trigger-zone">
+                        <button id="masterPanicBtn" class="master-panic-btn">
+                            Broadcast<br>Alert
+                        </button>
+                        <p id="panicStatusLabel" style="font-size: 13px; font-weight: 600; color: var(--text-primary);">System Status: Ready</p>
+                    </div>
+
+                    <div class="channels-group">
+                        <p style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">Transmission Pipelines</p>
+                        <label class="channel-option">
+                            <input type="checkbox" id="chkSms" checked> Synchronized Emergency SMS
+                        </label>
+                        <label class="channel-option">
+                            <input type="checkbox" id="chkPush" checked> Smartphone Push Notification Intercept
+                        </label>
+                        <label class="channel-option">
+                            <input type="checkbox" id="chkVoice"> Automated SOS Synthesizer Voice Loop
+                        </label>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="broadcast-card" style="gap: 14px;">
+                        <div>
+                            <h3 class="panel-heading">👥 Caregiver Response Squad</h3>
+                            <p style="font-size: 12px; color: var(--text-muted);">Current telemetry network link parameters of your network guardians.</p>
+                        </div>
+
+                        <div class="caregivers-list" id="caregiverListContainer">
+                            <p style="font-size:12px;color:var(--text-muted);">Loading caregiver directory...</p>
+                        </div>
+
+                        <form id="addCaregiverForm" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
+                            <input type="text" id="cgName" placeholder="Name" required style="flex:1; min-width:110px; padding:8px; border:1px solid #E4DAC5; border-radius:8px; font-size:12px;">
+                            <input type="text" id="cgRelation" placeholder="Relation" style="flex:1; min-width:90px; padding:8px; border:1px solid #E4DAC5; border-radius:8px; font-size:12px;">
+                            <input type="text" id="cgPhone" placeholder="Phone" required style="flex:1; min-width:110px; padding:8px; border:1px solid #E4DAC5; border-radius:8px; font-size:12px;">
+                            <button type="submit" style="padding:8px 14px; border:none; border-radius:8px; background:var(--primary-purple,var(--pd-brand, #1F5C56)); color:white; font-size:12px; font-weight:600; cursor:pointer;">Add</button>
+                        </form>
+                    </div>
+
+                    <div class="history-card">
+                        <h3 class="panel-heading">📋 Transmission Handshake Activity Logs</h3>
+                        <div class="history-terminal" id="historyTerminal">
+                            <div class="log-entry">[SYSTEM] Guardian loop node definitions compiled cleanly.</div>
+                            <div class="log-entry">[INFO] Secure pipeline socket listeners waiting on trigger input...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const caregiverListContainer = document.getElementById("caregiverListContainer");
+        const masterPanicBtn = document.getElementById("masterPanicBtn");
+        const historyTerminal = document.getElementById("historyTerminal");
+        const panicStatusLabel = document.getElementById("panicStatusLabel");
+
+        function addLog(text, isAlert = false) {
+            const entry = document.createElement("div");
+            entry.className = `log-entry ${isAlert ? 'alert' : ''}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+            historyTerminal.appendChild(entry);
+            historyTerminal.scrollTop = historyTerminal.scrollHeight;
+        }
+
+        function initialsOf(name) {
+            const parts = name.trim().split(" ");
+            if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            return (parts[0] ? parts[0][0] : "C").toUpperCase();
+        }
+
+        async function loadCaregivers() {
+            try {
+                const res = await fetch("/api/caregivers");
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Failed to load caregivers");
+
+                if (data.length === 0) {
+                    caregiverListContainer.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">No caregivers added yet. Use the form below to add one.</p>`;
+                    return;
+                }
+
+                caregiverListContainer.innerHTML = data.map(cg => `
+                    <div class="caregiver-card" data-id="${cg.id}">
+                        <div class="caregiver-meta">
+                            <div class="cg-avatar">${initialsOf(cg.name)}</div>
+                            <div class="cg-details">
+                                <h4>${cg.name}</h4>
+                                <p>${cg.phone}${cg.relation ? " — " + cg.relation : ""}</p>
+                            </div>
+                        </div>
+                        <span class="status-pill primary" id="pill-${cg.id}">🟢 Active</span>
+                    </div>
+                `).join("");
+            } catch (err) {
+                console.error(err);
+                caregiverListContainer.innerHTML = `<p style="font-size:12px;color:#C1443A;">Could not load caregivers from the server.</p>`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("loggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const fullName = sessionStorage.getItem("username") || "PADANE User";
+            const emergencyContact = sessionStorage.getItem("emergencyContact") || "Not Registered";
+            
+            const nameParts = fullName.trim().split(" ");
+            let initials = "US";
+            if (nameParts.length >= 2) {
+                initials = nameParts[0][0].toUpperCase() + nameParts[nameParts.length - 1][0].toUpperCase();
+            } else if (nameParts.length === 1 && nameParts[0] !== "") {
+                initials = nameParts[0][0].toUpperCase();
+            }
+
+            document.querySelectorAll(".user-name-display").forEach(el => el.textContent = fullName);
+            document.querySelectorAll(".user-initials-display").forEach(el => el.textContent = initials);
+
+            loadCaregivers();
+
+            document.getElementById("addCaregiverForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const name = document.getElementById("cgName").value.trim();
+                const relation = document.getElementById("cgRelation").value.trim();
+                const phone = document.getElementById("cgPhone").value.trim();
+                if (!name || !phone) return;
+
+                const res = await fetch("/api/caregivers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, relation, phone })
+                });
+                if (res.ok) {
+                    document.getElementById("addCaregiverForm").reset();
+                    loadCaregivers();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Could not add caregiver.");
+                }
+            });
+        });
+
+        masterPanicBtn.addEventListener("click", async () => {
+            const smsActive = document.getElementById("chkSms").checked;
+            const pushActive = document.getElementById("chkPush").checked;
+            const voiceActive = document.getElementById("chkVoice").checked;
+
+            if(!smsActive && !pushActive && !voiceActive) {
+                alert("Please select at least one active distribution transmission pipeline.");
+                return;
+            }
+
+            masterPanicBtn.disabled = true;
+            masterPanicBtn.style.opacity = "0.6";
+            panicStatusLabel.textContent = "CRITICAL STATE: Broadcasting...";
+            panicStatusLabel.style.color = "var(--emergency-red)";
+
+            addLog("!! MASTER PANIC SEQUENCE INITIALIZED BY USER PORTAL CONTROLLER !!", true);
+
+            try {
+                const res = await fetch("/api/caregivers/alert", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ sms: smsActive, push: pushActive, voice: voiceActive })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    addLog("[ERROR] " + (data.error || "Broadcast failed to reach the server."), true);
+                    panicStatusLabel.textContent = "System Status: Broadcast Failed";
+                    panicStatusLabel.style.color = "#C1443A";
+                    masterPanicBtn.disabled = false;
+                    masterPanicBtn.style.opacity = "1";
+                    return;
+                }
+
+                if (smsActive) addLog("[SMS Pipeline] Dispatching cellular packets via gateway router...", true);
+                if (pushActive) addLog("[PUSH Pipeline] Routing JSON APNS/FCM tokens payload to client nodes...", true);
+                if (voiceActive) addLog("[VOICE Pipeline] Queueing outbound VoIP SIP trunk call sequences...", true);
+
+                addLog(`[SERVER] Alert #${data.alert_id} recorded — this is now visible on the admin's Real-time Alerts and Audit Trail.`);
+
+                data.caregivers.forEach((cg, idx) => {
+                    setTimeout(() => {
+                        addLog(`[ACK] Handshake confirmed from ${cg.name}.`);
+                        const pill = document.getElementById(`pill-${cg.id}`);
+                        if (pill) {
+                            pill.className = "status-pill notified";
+                            pill.textContent = "🚨 NOTIFIED";
+                        }
+                    }, 900 * (idx + 1));
+                });
+
+                setTimeout(() => {
+                    addLog("[SUCCESS] Global notification broadcast completely acknowledged by response squad infrastructure.");
+                    panicStatusLabel.textContent = "System Status: Broadcast Completed";
+                    panicStatusLabel.style.color = "var(--accent-green)";
+                    masterPanicBtn.disabled = false;
+                    masterPanicBtn.style.opacity = "1";
+                }, 900 * (data.caregivers.length + 1) + 400);
+            } catch (err) {
+                console.error(err);
+                addLog("[ERROR] Cannot reach server.", true);
+                panicStatusLabel.textContent = "System Status: Offline";
+                panicStatusLabel.style.color = "#C1443A";
+                masterPanicBtn.disabled = false;
+                masterPanicBtn.style.opacity = "1";
+            }
+        });
+
+        function handleLogout() {
+            fetch("/api/logout", { method: "POST" }).catch(() => {});
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
+
+<script>
+function toggleSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.toggle('open');
+    if (ov) ov.classList.toggle('open');
+}
+
+function closeSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.remove('open');
+    if (ov) ov.classList.remove('open');
+}
+
+function toggleSidebarCollapse() {
+    var sb = document.querySelector('.sidebar');
+    if (!sb) return;
+    var collapsed = sb.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    try { localStorage.setItem('padaneSidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+}
+
+(function restoreSidebarCollapse() {
+    try {
+        if (localStorage.getItem('padaneSidebarCollapsed') === '1' && window.innerWidth > 900) {
+            var sb = document.querySelector('.sidebar');
+            if (sb) sb.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

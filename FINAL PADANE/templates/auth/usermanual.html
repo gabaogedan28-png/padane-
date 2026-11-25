@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PADANE — User Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F7F4EC;
+    --bg-soft: #EFE9DA;
+    --panel: #FFFFFF;
+    --ink: #223330;
+    --ink-soft: #4B5C57;
+    --teal: #2E5C58;
+    --teal-dark: #1B3836;
+    --teal-tint: #E4EEEB;
+    --sage: #86A997;
+    --amber: #C6862B;
+    --amber-tint: #F3E3C4;
+    --line: #DCD3BE;
+    --focus: #1B3836;
+    --radius: 16px;
+    --step: 0px;
+    --shadow: 0 10px 30px rgba(27,56,54,0.08);
+  }
+
+  html{ font-size: calc(17px + var(--step)); scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Atkinson Hyperlegible', system-ui, sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  h1,h2,h3{
+    font-family:'Fraunces', 'Atkinson Hyperlegible', serif;
+    color:var(--teal-dark);
+    line-height:1.15;
+    margin:0 0 0.5em;
+    font-weight:600;
+  }
+
+  a{ color:var(--teal-dark); }
+  img,svg{ display:block; max-width:100%; }
+
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 24px; }
+
+  :focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  .skip-link{
+    position:absolute; left:-9999px; top:0;
+    background:var(--teal-dark); color:#fff; padding:12px 20px;
+    border-radius:0 0 10px 0; z-index:200; font-weight:700;
+  }
+  .skip-link:focus{ left:0; }
+
+  header.site{
+    position:sticky; top:0; z-index:100;
+    background:rgba(247,244,236,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; gap:16px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{ width:42px; height:42px; flex:none; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1.1; }
+  .brand-text strong{ font-family:'Fraunces',serif; font-size:1.3rem; color:var(--teal-dark); letter-spacing:0.01em; }
+  .brand-text span{ font-size:0.8rem; color:var(--ink-soft); }
+
+  nav.primary{ display:flex; gap:4px; flex-wrap:wrap; }
+  nav.primary a{
+    text-decoration:none; color:var(--ink);
+    font-weight:700; padding:10px 14px; border-radius:999px; font-size:0.95rem;
+  }
+  nav.primary a:hover{ background:var(--teal-tint); }
+
+  .nav-right{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+
+  .a11y-bar{
+    display:flex; align-items:center; gap:10px;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:999px; padding:6px; box-shadow:var(--shadow);
+  }
+  .a11y-bar button{
+    border:none; background:transparent; cursor:pointer;
+    width:38px; height:38px; border-radius:999px;
+    font-weight:700; font-size:0.95rem; color:var(--teal-dark);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .a11y-bar button:hover{ background:var(--teal-tint); }
+  .a11y-bar .divider{ width:1px; height:22px; background:var(--line); }
+  .a11y-bar .contrast-toggle{ width:auto; padding:0 12px; gap:6px; display:flex; align-items:center; font-size:0.85rem; }
+
+  .signup-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:transparent; color:var(--teal-dark);
+    font-weight:700; font-size:1rem;
+    padding:14px 24px; border-radius:12px;
+    text-decoration:none; border:2px solid var(--teal-dark);
+    white-space:nowrap; margin-left:10px;
+  }
+  .signup-btn:hover{ background:var(--teal-tint); }
+  body.high-contrast .signup-btn{ color:var(--amber); border-color:var(--amber); }
+  body.high-contrast .signup-btn:hover{ background:var(--teal-tint); }
+
+  .hero{ padding:64px 0 56px; }
+  .hero-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--teal-tint); color:var(--teal-dark);
+    font-weight:700; font-size:0.85rem; padding:8px 14px;
+    border-radius:999px; margin-bottom:18px;
+  }
+  .eyebrow .dot{ width:8px; height:8px; border-radius:50%; background:var(--amber); }
+  h1.display{ font-size:clamp(2.2rem, 4vw, 3.1rem); max-width:14ch; }
+  .hero p.lead{ font-size:1.15rem; color:var(--ink-soft); max-width:46ch; margin:18px 0 28px; }
+  .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:14px 24px; border-radius:12px; font-weight:700;
+    text-decoration:none; font-size:1rem; border:2px solid transparent;
+    cursor:pointer;
+  }
+  .btn-primary{ background:var(--teal-dark); color:#fff; }
+  .btn-primary:hover{ background:var(--teal); }
+  .btn-secondary{ background:transparent; border-color:var(--teal-dark); color:var(--teal-dark); }
+  .btn-secondary:hover{ background:var(--teal-tint); }
+
+  .hero-art{
+    background:var(--panel); border-radius:24px; padding:32px;
+    box-shadow:var(--shadow); border:1px solid var(--line);
+  }
+
+  section{ padding:56px 0; border-top:1px solid var(--line); }
+  .section-head{ max-width:60ch; margin-bottom:36px; }
+  .section-head .eyebrow{ margin-bottom:14px; }
+  .section-head h2{ font-size:clamp(1.6rem, 2.6vw, 2.1rem); }
+  .section-head p{ color:var(--ink-soft); font-size:1.05rem; }
+
+  .op-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .op-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; box-shadow:var(--shadow);
+  }
+  .op-card .icon{
+    width:48px; height:48px; border-radius:12px; background:var(--teal-tint);
+    display:flex; align-items:center; justify-content:center; margin-bottom:16px; flex:none;
+  }
+  .op-card .icon svg{ width:26px; height:26px; }
+  .op-card h3{ font-size:1.15rem; margin-bottom:8px; }
+  .op-card p{ color:var(--ink-soft); margin:0; }
+  .op-card.caution{ border-color:var(--amber); background:linear-gradient(180deg, var(--amber-tint), var(--panel) 40%); }
+  .op-card.caution .icon{ background:var(--amber-tint); }
+  .op-card ul{ margin:8px 0 0; padding-left:1.2em; color:var(--ink-soft); }
+  .op-card li{ margin-bottom:4px; }
+
+  .sos-flow{ counter-reset:step; display:flex; flex-direction:column; gap:0; }
+  .sos-step{
+    display:grid; grid-template-columns:64px 1fr; gap:20px;
+    position:relative; padding-bottom:34px;
+  }
+  .sos-step:last-child{ padding-bottom:0; }
+  .sos-num{
+    counter-increment:step;
+    width:56px; height:56px; border-radius:50%;
+    background:var(--teal-dark); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:1.3rem;
+    position:relative; z-index:2;
+  }
+  .sos-num::before{ content: counter(step); }
+  button.sos-num{ font-family:inherit; border:none; }
+  .sos-step:not(:last-child)::after{
+    content:""; position:absolute; left:27px; top:56px; bottom:0;
+    width:2px; background:var(--line);
+  }
+  .sos-body{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px 22px; box-shadow:var(--shadow); transition:border-color .35s ease, box-shadow .35s ease; }
+  .sos-body h3{ font-size:1.05rem; margin-bottom:4px; }
+  .sos-body p{ margin:0; color:var(--ink-soft); }
+  .sos-step.active .sos-body{ border-color:var(--amber); box-shadow:0 0 0 3px var(--amber-tint), var(--shadow); }
+  .sos-step.active .sos-num{ background:var(--amber); color:var(--teal-dark); }
+  .sos-step .sos-num{ transition:background .35s ease, color .35s ease; cursor:pointer; }
+  .sos-step .sos-num:focus-visible{ outline:3px solid var(--focus); outline-offset:3px; }
+
+  .sos-grid{ display:grid; grid-template-columns:340px 1fr; gap:40px; align-items:start; }
+  .sos-illustration-wrap{
+    position:sticky; top:110px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px; box-shadow:var(--shadow); text-align:center;
+  }
+  .sos-illustration-wrap svg{ width:100%; height:auto; }
+  .phase-icon{ opacity:0.08; transition:opacity .5s ease, transform .5s ease; transform-origin:222px 150px; }
+  .btn-core{ transition:transform .4s ease, fill .4s ease; transform-origin:141px 150px; }
+  [data-phase="0"] .btn-core{ transform:scale(1.18); fill:#E4A34C; }
+  [data-phase="1"] .btn-core{ transform:scale(1.1); }
+  [data-phase="0"] .p0, [data-phase="1"] .p1, [data-phase="2"] .p2, [data-phase="3"] .p3,
+  [data-phase="4"] .p4, [data-phase="5"] .p5, [data-phase="6"] .p6{ opacity:1; transform:scale(1); }
+  .link-line{ stroke:var(--line); stroke-width:2; stroke-dasharray:3 6; transition:stroke .4s ease; }
+  [data-phase]:not([data-phase="0"]) .link-line{ stroke:var(--amber); }
+  .sos-caption{ margin-top:16px; font-weight:700; color:var(--teal-dark); min-height:2.8em; font-size:1rem; }
+  .sos-progress{ display:flex; gap:6px; margin-top:12px; justify-content:center; flex-wrap:wrap; }
+  .sos-progress span{ width:8px; height:8px; border-radius:50%; background:var(--line); transition:all .3s ease; display:inline-block; }
+  .sos-progress span.active{ background:var(--amber); width:22px; border-radius:6px; }
+  .sos-note{ font-size:0.85rem; color:var(--ink-soft); margin-top:14px; }
+  @media (max-width:860px){
+    .sos-grid{ grid-template-columns:1fr; }
+    .sos-illustration-wrap{ position:static; max-width:340px; margin:0 auto 28px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .phase-icon, .btn-core, .sos-body{ transition:none; }
+  }
+
+  .faq-list{ display:flex; flex-direction:column; gap:12px; max-width:820px; }
+  details.faq-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:4px 22px; box-shadow:var(--shadow);
+  }
+  details.faq-item summary{
+    cursor:pointer; list-style:none; padding:18px 0;
+    font-weight:700; font-size:1.05rem; color:var(--teal-dark);
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  details.faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-plus{
+    width:30px; height:30px; border-radius:50%; background:var(--teal-tint);
+    display:flex; align-items:center; justify-content:center; flex:none;
+    font-size:1.2rem; font-weight:700; color:var(--teal-dark);
+  }
+  details.faq-item[open] .faq-plus{ transform:rotate(45deg); }
+  .faq-answer{ padding:0 0 20px; color:var(--ink-soft); }
+
+  .specs-table{ width:100%; border-collapse:collapse; background:var(--panel); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border:1px solid var(--line); }
+  .specs-table th, .specs-table td{ text-align:left; padding:16px 20px; border-bottom:1px solid var(--line); font-size:1rem; }
+  .specs-table th{ background:var(--teal-tint); color:var(--teal-dark); width:38%; font-family:'Fraunces',serif; font-weight:600; }
+  .specs-table tr:last-child th, .specs-table tr:last-child td{ border-bottom:none; }
+
+  footer{ background:var(--teal-dark); color:#EFF5F3; padding:44px 0; margin-top:20px; }
+  footer .wrap{ display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; align-items:center; }
+  footer p{ margin:0; color:#CFE0DB; font-size:0.95rem; }
+  footer strong{ font-family:'Fraunces',serif; font-size:1.2rem; }
+
+  body.high-contrast{
+    --bg:#0F1614; --bg-soft:#161F1D; --panel:#151F1D; --ink:#FFFFFF; --ink-soft:#E7EFEC;
+    --teal:#8FD9C9; --teal-dark:#FFFFFF; --teal-tint:#1E3733; --sage:#8FD9C9;
+    --amber:#FFC55C; --amber-tint:#2E2410; --line:#3A4A46; --focus:#FFC55C;
+    --shadow:none;
+  }
+  body.high-contrast header.site{ background:rgba(15,22,20,0.96); }
+  body.high-contrast .btn-primary{ background:var(--amber); color:#12201D; }
+  body.high-contrast .btn-primary:hover{ background:#ffd485; }
+  body.high-contrast nav.primary a{ color:#FFFFFF; }
+  body.high-contrast .sos-num{ background:var(--amber); color:#12201D; }
+  body.high-contrast .op-card.caution{ background:var(--amber-tint); }
+
+  @media (max-width: 860px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .op-grid{ grid-template-columns:1fr; }
+    nav.primary{ order:3; width:100%; justify-content:flex-start; overflow-x:auto; }
+    .nav-row{ padding:12px 20px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to manual content</a>
+
+<header class="site">
+  <div class="wrap nav-row">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="23" fill="#2E5C58"/>
+        <path d="M24 11c-4.4 0-8 3.6-8 8 0 6 8 16 8 16s8-10 8-16c0-4.4-3.6-8-8-8Z" stroke="#F7F4EC" stroke-width="2.2" fill="none"/>
+        <circle cx="24" cy="19" r="3.2" fill="#F7F4EC"/>
+      </svg>
+      <div class="brand-text">
+        <strong>PADANE</strong>
+        <span>Personalized Assistive Device &amp; Navigational Equipment</span>
+      </div>
+    </div>
+
+    <nav class="primary" aria-label="Main sections">
+      <a href="#operating">Using the Stick</a>
+      <a href="#sos">Emergency SOS</a>
+      <a href="#faq">Questions</a>
+      <a href="#specs">Specifications</a>
+      <a href="register.html" class="signup-btn" id="signup-btn">Sign Up</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="a11y-bar" role="group" aria-label="Accessibility controls">
+        <button type="button" id="text-smaller" aria-label="Decrease text size">A−</button>
+        <button type="button" id="text-larger" aria-label="Increase text size">A+</button>
+        <span class="divider" aria-hidden="true"></span>
+        <button type="button" id="contrast-toggle" class="contrast-toggle" aria-pressed="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/></svg>
+          High contrast
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero" style="border-top:none;">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> User Manual · Version 1.0</span>
+        <h1 class="display">A steady hand, a watchful eye, in every step you take.</h1>
+        <p class="lead">PADANE is a smart walking stick built for elderly individuals and persons with disabilities. One press of a button shares your exact location, sounds an alarm, and alerts your guardian — so help is always close by.</p>
+        <div class="hero-actions">
+          <a href="#operating" class="btn btn-primary">Learn how to use it</a>
+          <a href="#sos" class="btn btn-secondary">See the emergency steps</a>
+        </div>
+      </div>
+
+      <div class="hero-art">
+        <svg viewBox="0 0 360 320" role="img" aria-label="Illustration of the PADANE walking stick with its emergency button, flashlight, and GPS signal">
+          <defs>
+            <radialGradient id="pulse" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#C6862B" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#C6862B" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="255" cy="70" r="70" fill="url(#pulse)"/>
+          <path d="M120 40c0-16 14-28 30-28s28 12 28 28-14 30-28 34" stroke="#2E5C58" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <line x1="150" y1="70" x2="120" y2="290" stroke="#2E5C58" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="141" cy="150" r="16" fill="#C6862B"/>
+          <circle cx="141" cy="150" r="16" fill="none" stroke="#1B3836" stroke-width="2"/>
+          <path d="M112 285 L128 285 L124 305 L116 305 Z" fill="#86A997"/>
+          <circle cx="141" cy="150" r="32" fill="none" stroke="#C6862B" stroke-width="2" stroke-dasharray="4 6"/>
+          <circle cx="141" cy="150" r="48" fill="none" stroke="#C6862B" stroke-width="1.5" stroke-dasharray="2 8" opacity="0.6"/>
+          <line x1="60" y1="305" x2="300" y2="305" stroke="#DCD3BE" stroke-width="2"/>
+          <text x="180" y="150" font-family="Atkinson Hyperlegible, sans-serif" font-size="13" fill="#4B5C57">Emergency button</text>
+          <text x="180" y="170" font-family="Atkinson Hyperlegible, sans-serif" font-size="12" fill="#4B5C57">sends location + SMS alert</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERATING THE WALKING STICK -->
+  <section id="operating">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span> Section 1</span>
+        <h2>Operating the walking stick</h2>
+        <p>Here's how to power on PADANE and use its everyday features safely and confidently.</p>
+      </div>
+
+      <div class="op-grid">
+        <article class="op-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v8" stroke="#2E5C58" stroke-width="2" stroke-linecap="round"/><path d="M6.5 6.5a8 8 0 1 0 11 0" stroke="#2E5C58" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Powering on</h3>
+          <ul>
+            <li>Make sure the battery is sufficiently charged.</li>
+            <li>Press the power button.</li>
+            <li>Wait for the device to initialize.</li>
+            <li>The system connects to the cellular network and GPS.</li>
+          </ul>
+        </article>
+
+        <article class="op-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v3M5 12H2m20 0h-3M6 6l-2-2m16 2l2-2M6 18l-2 2m16-2l2 2" stroke="#2E5C58" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="#2E5C58" stroke-width="2"/></svg>
+          </div>
+          <h3>Normal walking</h3>
+          <p>Use the walking stick like a standard mobility aid. All emergency systems stay quietly on standby while the device is powered on — ready the moment you need them.</p>
+        </article>
+
+        <article class="op-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6V16h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3Z" stroke="#2E5C58" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Using the flashlight</h3>
+          <p>Turn it on when walking at night, entering dark environments, or navigating during a power outage. It works independently, so you can use it any time you need extra light.</p>
+        </article>
+
+        <article class="op-card caution">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="#C6862B" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Using the taser</h3>
+          <p>This is a last-resort protection, only for emergencies. Use it only when:</p>
+          <ul>
+            <li>Your personal safety is under immediate threat</li>
+            <li>Escape is not possible</li>
+            <li>Emergency responders have not yet arrived</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMERGENCY SOS -->
+  <section id="sos">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span> Section 2</span>
+        <h2>Emergency SOS Procedure</h2>
+        <p>When you need help right away, one press starts this exact sequence — in this order, automatically.</p>
+      </div>
+
+      <div class="sos-grid">
+        <div class="sos-illustration-wrap">
+          <svg id="sosSvg" data-phase="0" viewBox="0 0 320 300" role="img" aria-label="Animated illustration showing the PADANE stick executing the emergency sequence, step by step">
+            <path d="M110 32c0-14 12-24 26-24s24 10 24 24-12 26-24 30" stroke="#2E5C58" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <line x1="136" y1="60" x2="112" y2="270" stroke="#2E5C58" stroke-width="9" stroke-linecap="round"/>
+            <circle class="btn-core" cx="141" cy="150" r="15" fill="#C6862B"/>
+            <circle cx="141" cy="150" r="15" fill="none" stroke="#1B3836" stroke-width="2"/>
+            <line class="link-line" x1="156" y1="150" x2="186" y2="150"/>
+
+            <g class="phase-icon p0">
+              <circle cx="141" cy="150" r="26" fill="none" stroke="#C6862B" stroke-width="2"/>
+            </g>
+
+            <g class="phase-icon p1">
+              <path d="M100 150a41 41 0 0 1 0-40" stroke="#C6862B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <path d="M88 150a53 53 0 0 1 0-64" stroke="#C6862B" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+              <path d="M182 150a41 41 0 0 0 0-40" stroke="#C6862B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <g class="phase-icon p2">
+              <circle cx="222" cy="150" r="22" fill="none" stroke="#86A997" stroke-width="2" stroke-dasharray="3 5"/>
+              <path d="M222 138c-6 0-11 5-11 11 0 8 11 19 11 19s11-11 11-19c0-6-5-11-11-11Z" fill="#2E5C58"/>
+              <circle cx="222" cy="149" r="3.4" fill="#F7F4EC"/>
+            </g>
+
+            <g class="phase-icon p3">
+              <path d="M222 138v-14M215 128l7-8 7 8" stroke="#2E5C58" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="204" y="150" width="36" height="24" rx="6" fill="#E4EEEB" stroke="#2E5C58" stroke-width="2"/>
+              <circle cx="213" cy="162" r="2.4" fill="#C6862B"/>
+              <line x1="220" y1="162" x2="232" y2="162" stroke="#2E5C58" stroke-width="2" stroke-linecap="round"/>
+            </g>
+
+            <g class="phase-icon p4">
+              <rect x="200" y="132" width="44" height="30" rx="4" fill="#E4EEEB" stroke="#2E5C58" stroke-width="2"/>
+              <circle cx="222" cy="147" r="4" fill="#C6862B"/>
+              <path d="M208 155l8-6 6 4 8-8" stroke="#2E5C58" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="214" y1="168" x2="230" y2="168" stroke="#2E5C58" stroke-width="3" stroke-linecap="round"/>
+            </g>
+
+            <g class="phase-icon p5">
+              <rect x="202" y="130" width="40" height="30" rx="8" fill="#2E5C58"/>
+              <path d="M210 160l-6 8v-8Z" fill="#2E5C58"/>
+              <path d="M211 143l7 5 7-5" stroke="#F7F4EC" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="238" cy="132" r="8" fill="#C6862B"/>
+              <path d="M234 132l3 3 6-6" stroke="#1B3836" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+
+            <g class="phase-icon p6">
+              <circle cx="222" cy="140" r="7" fill="#2E5C58"/>
+              <path d="M210 168c0-9 6-16 12-16s12 7 12 16" stroke="#2E5C58" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+              <path d="M222 118c-6 0-11 5-11 11 0 8 11 19 11 19s11-11 11-19c0-6-5-11-11-11Z" fill="none" stroke="#C6862B" stroke-width="2"/>
+            </g>
+
+            <line x1="70" y1="284" x2="270" y2="284" stroke="#DCD3BE" stroke-width="2"/>
+          </svg>
+
+          <p class="sos-caption" id="sosCaption">Press the emergency push button</p>
+          <div class="sos-progress" id="sosProgress" role="tablist" aria-label="Emergency sequence progress"></div>
+          <p class="sos-note">Illustration cycles automatically. Tap any numbered step to jump to it.</p>
+        </div>
+
+        <div class="sos-flow" id="sosFlow">
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>Press the emergency push button</h3><p>Located on the stick, within easy reach of your hand.</p></div>
+          </div>
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>The buzzer immediately sounds</h3><p>A loud alarm that draws attention from people nearby.</p></div>
+          </div>
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>Your location is acquired</h3><p>The GPS/GNSS module finds your precise position.</p></div>
+          </div>
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>The information is sent to PADANE</h3><p>The onboard ESP32 A7670 transmits the emergency details to the server.</p></div>
+          </div>
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>Your location appears on the dashboard</h3><p>Authorized viewers can see it update in real time.</p></div>
+          </div>
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>Your guardian receives an SMS</h3><p>Sent automatically with your identity and current location.</p></div>
+          </div>
+          <div class="sos-step">
+            <button class="sos-num" type="button"></button>
+            <div class="sos-body"><h3>Responders can find you</h3><p>Emergency responders use the dashboard to locate you and coordinate help.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span> Section 3</span>
+        <h2>Frequently Asked Questions (FAQ)</h2>
+        <p>Answers to the questions users and families ask most often.</p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Can PADANE be used without an internet connection?<span class="faq-plus" aria-hidden="true">+</span></summary>
+          <div class="faq-answer">The walking stick needs cellular connectivity to send your GPS location and SMS notifications. The web dashboard also needs an internet connection for live monitoring.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Who receives the emergency SMS?<span class="faq-plus" aria-hidden="true">+</span></summary>
+          <div class="faq-answer">The SMS is sent automatically to the guardian or emergency contact linked to your registered account.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Does the dashboard update automatically?<span class="faq-plus" aria-hidden="true">+</span></summary>
+          <div class="faq-answer">Yes. Once the emergency button is pressed and communication is established, the dashboard shows your latest available location.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Can the flashlight be used without activating the emergency system?<span class="faq-plus" aria-hidden="true">+</span></summary>
+          <div class="faq-answer">Yes. The flashlight works on its own and can be turned on whenever you need extra light.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Is the taser intended for everyday use?<span class="faq-plus" aria-hidden="true">+</span></summary>
+          <div class="faq-answer">No. It's designed only for emergency self-defense, to be used responsibly and in line with local laws.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECS -->
+  <section id="specs">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span> Section 4</span>
+        <h2>Technical Specifications</h2>
+        <p>What's inside PADANE, at a glance.</p>
+      </div>
+
+      <table class="specs-table">
+        <tbody>
+          <tr><th scope="row">Device name</th><td>Personalized Assistive Device and Navigational Equipment (PADANE)</td></tr>
+          <tr><th scope="row">Main controller</th><td>ESP32 A7670</td></tr>
+          <tr><th scope="row">Communication</th><td>GSM / LTE cellular network</td></tr>
+          <tr><th scope="row">Positioning</th><td>GNSS / GPS</td></tr>
+          <tr><th scope="row">Battery Capacity</th><td>3.7 V</td></tr> 
+          <tr><th scope="row">Emergency alert</th><td>Push-button activated</td></tr>
+          <tr><th scope="row">Notification</th><td>SMS to registered guardian</td></tr>
+          <tr><th scope="row">Monitoring</th><td>Web-based dashboard</td></tr>
+          <tr><th scope="row">Alarm</th><td>Integrated speaker / buzzer</td></tr>
+          <tr><th scope="row">Lighting</th><td>High-brightness LED flashlight</td></tr>
+          <tr><th scope="row">Protection</th><td>Integrated emergency taser</td></tr>
+          <tr><th scope="row">Intended users</th><td>Elderly individuals and persons with disabilities (PWDs)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <strong>PADANE</strong>
+      <p>Steadier steps, faster help, greater peace of mind.</p>
+    </div>
+    <p>User Manual · Version 1.0 · ESP32 A7670 platform</p>
+  </div>
+</footer>
+
+<script>
+  // Text size control
+  var step = 0;
+  var html = document.documentElement;
+  document.getElementById('text-larger').addEventListener('click', function(){
+    if(step < 3){ step++; html.style.setProperty('--step', (step*2) + 'px'); }
+  });
+  document.getElementById('text-smaller').addEventListener('click', function(){
+    if(step > -2){ step--; html.style.setProperty('--step', (step*2) + 'px'); }
+  });
+
+  // High contrast toggle
+  var contrastBtn = document.getElementById('contrast-toggle');
+  contrastBtn.addEventListener('click', function(){
+    var on = document.body.classList.toggle('high-contrast');
+    contrastBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+
+  // ---------- SOS illustration sync ----------
+  (function(){
+    var svg = document.getElementById('sosSvg');
+    var caption = document.getElementById('sosCaption');
+    var progress = document.getElementById('sosProgress');
+    var steps = Array.prototype.slice.call(document.querySelectorAll('#sosFlow .sos-step'));
+    if(!svg || !steps.length) return;
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var current = 0;
+    var timer = null;
+
+    steps.forEach(function(_, i){
+      var dot = document.createElement('span');
+      dot.setAttribute('aria-hidden', 'true');
+      progress.appendChild(dot);
+    });
+    var dots = Array.prototype.slice.call(progress.children);
+
+    function setPhase(i){
+      current = i;
+      svg.setAttribute('data-phase', String(i));
+      var step = steps[i];
+      caption.textContent = step.querySelector('h3').textContent;
+      steps.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+      dots.forEach(function(d, idx){ d.classList.toggle('active', idx === i); });
+    }
+
+    function startAutoplay(){
+      if(reduceMotion) return;
+      stopAutoplay();
+      timer = setInterval(function(){
+        setPhase((current + 1) % steps.length);
+      }, 2600);
+    }
+    function stopAutoplay(){ if(timer){ clearInterval(timer); timer = null; } }
+
+    steps.forEach(function(step, i){
+      var btn = step.querySelector('.sos-num');
+      btn.addEventListener('click', function(){
+        setPhase(i);
+        startAutoplay();
+      });
+    });
+
+    var wrap = document.querySelector('.sos-illustration-wrap');
+    wrap.addEventListener('mouseenter', stopAutoplay);
+    wrap.addEventListener('mouseleave', startAutoplay);
+    wrap.addEventListener('focusin', stopAutoplay);
+    wrap.addEventListener('focusout', startAutoplay);
+
+    setPhase(0);
+    startAutoplay();
+  })();
+
+  // Only one FAQ item open at a time
+  var faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach(function(item){
+    item.addEventListener('toggle', function(){
+      if(item.open){
+        faqItems.forEach(function(other){
+          if(other !== item) other.open = false;
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

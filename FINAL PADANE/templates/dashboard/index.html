@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/theme-loader.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE - User Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: var(--pd-paper, #F7F3EA);
+            --sidebar-bg: var(--pd-sidebar, #16211F); 
+            --sidebar-text: #C7D6CE;
+            --text-primary: var(--pd-ink, #2A2318);
+            --text-muted: var(--pd-ink-muted, #766B5A);
+            --primary-purple: var(--pd-brand, #1F5C56);
+            --accent-green: #3F8F5B;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-main); display: flex; min-height: 100vh; color: var(--text-primary); }
+
+        /* SIDEBAR STYLES */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; z-index: 100; }
+        .sidebar-content { overflow-y: auto; flex-grow: 1; }
+        .sidebar-content::-webkit-scrollbar { display: none; }
+        .sidebar-content { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .logo-section { display: flex; align-items: center; gap: 12px; padding: 0 24px; margin-bottom: 30px; }
+        .logo-icon { width: 35px; height: 35px; border-radius: 8px; background: var(--primary-purple); display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+        .logo-icon svg, .nav-item svg, .sidebar-footer svg, .card-icon svg { width: 18px; height: 18px; display: block; }
+        .logo-text h1 { color: white; font-size: 18px; font-weight: 700; }
+        .logo-text p { color: var(--sidebar-text); font-size: 12px; font-weight: 500; margin-top: 2px;}
+        .nav-group-title { color: var(--pd-brand-dark, #163F3B); padding: 0 24px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+        
+        .nav-item { display: flex; align-items: center; padding: 10px 16px; margin: 2px 12px; border-radius: 10px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s ease; width: calc(100% - 24px); }
+        .nav-item:hover { color: white; background: rgba(255, 255, 255, 0.06); }
+        .nav-item.active { color: white; background: var(--primary-purple); box-shadow: 0 4px 10px rgba(31,92,86,.35); }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+
+        .sidebar-footer { border-top: 1px solid #24332F; padding: 20px 24px 20px 24px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar-bg); }
+        .user-avatar-block { display: flex; align-items: center; gap: 10px; }
+        .avatar-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
+        .user-info-text h4 { color: white; font-size: 13px; font-weight: 500; }
+        .user-info-text p { color: var(--sidebar-text); font-size: 11px; }
+
+        /* MAIN CONTENT LAYOUT */
+        .main-layout { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .top-header { background: white; height: 70px; border-bottom: 1px solid #E4DAC5; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+        .top-header h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .profile-dropdown { display: flex; align-items: center; gap: 10px; }
+        .avatar-circle-purple { width: 36px; height: 36px; border-radius: 50%; background: #DCEAE4; color: var(--primary-purple); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .workspace { padding: 40px; flex: 1; box-shadow: 0 8px 24px rgba(15,23,42,.06);}
+        .title-bar h2 { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .title-bar p { color: var(--text-muted); font-size: 14px; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 30px; }
+        .card { background: white; padding: 24px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02); border: 1px solid #E4DAC5; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; }
+        .card-header-box { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { color: var(--text-muted); font-size: 12px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .card-icon { padding: 8px; border-radius: 8px; background: #EFE7D6; color: var(--text-muted); }
+        .card-value { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-top: 12px; }
+
+        /* EMBEDDED PANELS (live Device Tracking + Nearest Help, pulled straight from
+           trigger.html / nearest-help.html so the overview dashboard shows them inline) */
+        .embed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+        @media (max-width: 1100px) { .embed-grid { grid-template-columns: 1fr; } }
+
+        .embed-card { background: white; border: 1px solid #E4DAC5; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,.02), 0 2px 4px -1px rgba(0,0,0,.02); display: flex; flex-direction: column; }
+        .embed-card-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #EFE7D6; }
+        .embed-card-head h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .embed-card-head a { font-size: 12px; font-weight: 700; color: var(--primary-purple); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+        .embed-card-head a:hover { text-decoration: underline; }
+        .embed-frame-wrap { position: relative; height: 460px; background: var(--pd-paper, #F7F3EA); }
+        .embed-frame-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: block; }
+        .embed-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-muted); background: var(--pd-paper, #F7F3EA); }
+    
+        /* Responsive sidebar */
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; }
+        .hamburger-btn:hover { background: #EFE7D6; }
+        .hamburger-btn svg { width: 22px; height: 22px; color: var(--text-primary); display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(2,6,23,.55); z-index: 90; }
+        .sidebar-overlay.open { display: block; }
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform .25s ease; z-index: 110; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger-btn { display: inline-flex; align-items: center; justify-content: center; }
+            .main-layout { margin-left: 0 !important; }
+        }
+
+        /* SIDEBAR COLLAPSE / CLOSE CONTROLS */
+        .sidebar-controls { display: flex; justify-content: flex-end; align-items: center; padding: 8px 14px 0; gap: 6px; flex-shrink: 0; }
+        .sidebar-toggle-btn, .sidebar-close-btn { background: rgba(255,255,255,0.06); border: none; color: var(--sidebar-text, #C7D6CE); width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s ease; flex-shrink: 0; }
+        .sidebar-toggle-btn:hover, .sidebar-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .sidebar-toggle-btn svg, .sidebar-close-btn svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
+        .sidebar-close-btn { display: none; }
+
+        .sidebar, .main-layout { transition: width .2s ease, margin-left .2s ease; }
+        .sidebar.collapsed { width: 76px; }
+        .sidebar.collapsed .sidebar-controls { justify-content: center; padding: 12px 6px 0; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text { display: none; }
+        .sidebar.collapsed .logo-section { justify-content: center; padding: 0 8px; }
+        .sidebar.collapsed .nav-item { justify-content: center; margin: 2px 8px; width: calc(100% - 16px); }
+        .sidebar.collapsed .nav-left { gap: 0; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; padding: 20px 8px; }
+        .sidebar.collapsed .logo-icon { display: none; }
+        .sidebar.collapsed .logo-icon,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text { display: none; }  
+        .sidebar.collapsed .sidebar-footer svg { display: none; } 
+        .sidebar.collapsed .logo-icon,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .user-info-text,
+        .sidebar.collapsed .sidebar-footer svg { display: none; }
+        body.sidebar-collapsed .main-layout { margin-left: 76px; }
+
+        @media (max-width: 900px) {
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-close-btn { display: flex; }
+            body.sidebar-collapsed .main-layout { margin-left: 0 !important; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-controls">
+            <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu" title="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <div class="logo-section">
+                <div class="logo-icon"> 
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="logo-text">
+                    <h1>PADANE</h1>
+                    <p class="user-name-display">Loading...</p>
+                </div>
+            </div>
+
+            <div class="nav-group-title">User Console</div>
+            
+            <a href="index.html" class="nav-item active">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span>Overview Dashboard</span>
+                </div>
+            </a>
+            
+            <a href="trigger.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>Device Tracking</span>
+                </div>
+            </a>
+
+            <a href="nearest-help.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    <span>Direct to nearest help</span>
+                </div>
+
+            <a href="alert-caregivers.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>Alert All Caregivers</span>
+                </div>
+            </a>
+
+            <a href="server-ping.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span>Live Server Ping</span>
+                </div>
+            </a>
+
+            <a href="account-settings.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Account Settings</span>
+                </div>
+            </a>
+
+            <a href="support-help.html" class="nav-item">
+                <div class="nav-left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Support & Help</span>
+                </div>
+            </a>
+            
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar-block">
+                <div class="avatar-circle user-initials-display">--</div>
+                <div class="user-info-text">
+                    <h4 class="user-name-display">Loading...</h4>
+                    <p>Client User</p>
+                </div>
+            </div>
+            <svg onclick="handleLogout()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sidebar-text); cursor:pointer;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+    </aside>
+
+    <div class="main-layout">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><h2>User Console Dashboard</h2>
+            </div>
+            <div class="header-right">
+                <div class="profile-dropdown">
+                    <div class="avatar-circle-purple user-initials-display">--</div>
+                    <div class="user-info-text">
+                        <h4 class="user-name-display" style="color: var(--text-primary); font-weight: 600;">Loading...</h4>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <div class="title-bar">
+                <div class="title-left">
+                    <h2>Welcome back, <span class="user-name-display">User</span>!</h2>
+                    <p>Monitor your navigational telemetry modules and review emergency infrastructure metrics.</p>
+                </div>
+            </div>
+
+            <div id="respondingBanner" style="display:none; background:#FBF3E4; border:1px solid #EFCB84; border-left:4px solid var(--pd-amber, #D98E2B); border-radius:12px; padding:14px 18px; margin-top:30px; font-size:14px; font-weight:600; color:#6E4A12;">
+                🟡 An administrator has acknowledged your alert and is responding.
+            </div>
+
+            <div class="title-bar" style="margin-top: 36px;">
+                <h2 style="font-size: 18px;">Live Overview</h2>
+                <p>Your device's live position and the nearest emergency help around you, right on the dashboard.</p>
+            </div>
+
+            <div class="embed-grid">
+                <div class="embed-card">
+                    <div class="embed-card-head">
+                        <h3>📍 Device Tracking</h3>
+                        <a href="trigger.html">Open full view →</a>
+                    </div>
+                    <div class="embed-frame-wrap">
+                        <div class="embed-loading" id="triggerLoading">Loading live map…</div>
+                        <iframe id="triggerFrame" src="trigger.html" title="Device Tracking" onload="trimEmbeddedPage('triggerFrame','triggerLoading')"></iframe>
+                    </div>
+                </div>
+
+                <div class="embed-card">
+                    <div class="embed-card-head">
+                        <h3>🧭 Nearest Help</h3>
+                        <a href="nearest-help.html">Open full view →</a>
+                    </div>
+                    <div class="embed-frame-wrap">
+                        <div class="embed-loading" id="nearestLoading">Loading help locator…</div>
+                        <iframe id="nearestFrame" src="nearest-help.html" title="Nearest Help Locator" onload="trimEmbeddedPage('nearestFrame','nearestLoading')"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="title-bar" style="margin-top: 36px;">
+                <h2 style="font-size: 18px;">Your Recent Alerts</h2>
+                <p>These are logged straight to the admin console when you use Trigger SOS or Alert Caregivers.</p>
+            </div>
+            <div class="card" style="margin-top: 16px; padding: 0; overflow: hidden;">
+                <table style="width:100%; border-collapse: collapse; font-size: 13px;">
+                    <thead>
+                        <tr style="background:var(--pd-paper, #F7F3EA); text-align:left;">
+                            <th style="padding:10px 16px; color:var(--text-muted); font-weight:600;">Time</th>
+                            <th style="padding:10px 16px; color:var(--text-muted); font-weight:600;">Type</th>
+                            <th style="padding:10px 16px; color:var(--text-muted); font-weight:600;">Location</th>
+                            <th style="padding:10px 16px; color:var(--text-muted); font-weight:600;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myAlertsBody">
+                        <tr><td colspan="4" style="padding:16px; text-align:center; color:var(--text-muted);">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("loggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const fullName = sessionStorage.getItem("username") || "PADANE User";
+            const emergencyContact = sessionStorage.getItem("emergencyContact") || "Not Registered";
+            
+            const nameParts = fullName.trim().split(" ");
+            let initials = "US";
+            if (nameParts.length >= 2) {
+                initials = nameParts[0][0].toUpperCase() + nameParts[nameParts.length - 1][0].toUpperCase();
+            } else if (nameParts.length === 1 && nameParts[0] !== "") {
+                initials = nameParts[0][0].toUpperCase();
+            }
+
+            document.querySelectorAll(".user-name-display").forEach(el => el.textContent = fullName);
+            document.querySelectorAll(".user-initials-display").forEach(el => el.textContent = initials);
+            
+            const contactEl = document.getElementById("emergency-contact-display");
+            if (contactEl && emergencyContact !== "undefined") {
+                contactEl.textContent = emergencyContact;
+            }
+
+            loadMyAlerts();
+            setInterval(loadMyAlerts, 12000);
+        });
+
+        // Parses the "YYYY-MM-DD hh:mm:ss AM/PM" strings the backend sends.
+        // Falls back to the native Date parser for any other format.
+        function parseAlertDate(str) {
+            if (!str) return null;
+            const m = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2}):(\d{2})\s*(AM|PM)$/i);
+            if (!m) {
+                const d = new Date(str);
+                return isNaN(d) ? null : d;
+            }
+            let [, y, mo, da, h, mi, s, ap] = m;
+            h = parseInt(h, 10);
+            if (/pm/i.test(ap) && h !== 12) h += 12;
+            if (/am/i.test(ap) && h === 12) h = 0;
+            return new Date(+y, +mo - 1, +da, h, +mi, +s);
+        }
+
+        async function loadMyAlerts() {
+            const tbody = document.getElementById("myAlertsBody");
+            try {
+                const res = await fetch("/api/alerts");
+                const raw = await res.json();
+                if (!res.ok) return;
+
+                // Only show alerts from the last 2 days — older ones drop off
+                // the dashboard automatically (they're still in the admin console).
+                const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+                const cutoff = Date.now() - TWO_DAYS_MS;
+                const data = raw.filter(a => {
+                    const d = parseAlertDate(a.created_at);
+                    return d ? d.getTime() >= cutoff : true; // keep if the date couldn't be parsed
+                });
+
+                tbody.innerHTML = data.length === 0
+                    ? `<tr><td colspan="4" style="padding:16px; text-align:center; color:var(--text-muted);">No alerts in the last 2 days.</td></tr>`
+                    : data.map(a => `
+                        <tr style="border-top:1px solid #EFE7D6;">
+                            <td style="padding:10px 16px;">${a.created_at}</td>
+                            <td style="padding:10px 16px;">${a.alert_type === 'sos_hardware' ? '🚨 Emergency SOS' : '👥 Caregiver Broadcast'}</td>
+                            <td style="padding:10px 16px;">${a.address || "—"}</td>
+                            <td style="padding:10px 16px;">${a.status === 'resolved' ? `✅ Resolved by ${a.resolved_by}` : (a.acknowledged ? `🟡 Responding — ${a.acknowledged_by}` : '🟠 Open')}</td>
+                        </tr>`).join("");
+
+                const responding = data.some(a => a.status !== 'resolved' && a.acknowledged);
+                document.getElementById("respondingBanner").style.display = responding ? "block" : "none";
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="4" style="padding:16px; text-align:center; color:#C1443A;">Could not load alerts.</td></tr>`;
+            }
+        }
+
+        function handleLogout() {
+            fetch("/api/logout", { method: "POST" }).catch(() => {});
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        // The trigger.html / nearest-help.html pages are full standalone pages
+        // (own sidebar, header, login guard). Since they're same-origin iframes,
+        // we can reach into them once loaded and hide the duplicate chrome so
+        // only the live map / locator widget itself shows inside the dashboard card.
+        function trimEmbeddedPage(iframeId, loadingId) {
+            const frame = document.getElementById(iframeId);
+            const loading = document.getElementById(loadingId);
+            try {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+
+                // If the embedded page bounced to login.html (no session), just
+                // leave it be rather than showing a broken trimmed view.
+                if (/login\.html/.test(frame.contentWindow.location.href)) {
+                    if (loading) loading.textContent = "Please log in to view this panel.";
+                    return;
+                }
+
+                const style = doc.createElement("style");
+                style.textContent = `
+                    body { overflow: hidden !important; }
+                    .sidebar, .sidebar-overlay, .top-header, .hamburger-btn { display: none !important; }
+                    .main-layout { margin-left: 0 !important; }
+                    .workspace { padding: 16px !important; box-shadow: none !important; }
+                    .title-bar { display: none !important; }
+                `;
+                doc.head.appendChild(style);
+
+                if (loading) loading.style.display = "none";
+            } catch (err) {
+                // Cross-origin or unexpected failure — leave the full page visible.
+                console.warn("Could not trim embedded panel:", err);
+                if (loading) loading.style.display = "none";
+            }
+        }
+    </script>
+
+<script>
+function toggleSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.toggle('open');
+    if (ov) ov.classList.toggle('open');
+}
+
+function closeSidebar() {
+    var sb = document.querySelector('.sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if (sb) sb.classList.remove('open');
+    if (ov) ov.classList.remove('open');
+}
+
+function toggleSidebarCollapse() {
+    var sb = document.querySelector('.sidebar');
+    if (!sb) return;
+    var collapsed = sb.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    try { localStorage.setItem('padaneSidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+}
+
+(function restoreSidebarCollapse() {
+    try {
+        if (localStorage.getItem('padaneSidebarCollapsed') === '1' && window.innerWidth > 900) {
+            var sb = document.querySelector('.sidebar');
+            if (sb) sb.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

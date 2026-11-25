@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/theme-loader.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADANE - User Settings</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #F5F0E4;
+            --sidebar-bg: var(--pd-sidebar, #16211F);
+            --sidebar-active: var(--pd-brand, #1F5C56);
+            --text-dark: var(--pd-ink, #2A2318);
+            --text-muted: var(--pd-ink-muted, #766B5A);
+            --border-color: #E4DAC5;
+            --primary-blue: var(--pd-brand, #1F5C56);
+            --alert-orange: var(--pd-amber, #D98E2B);
+            --success-green: #3F8F5B;
+            --success-bg: #EEF5EA;
+            --alert-red: #C1443A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-main); display: flex; min-height: 100vh; color: var(--text-dark); overflow-x: hidden; }
+
+        /* --- SIDEBAR SYSTEM --- */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; padding: 20px 0 10px 0; z-index: 100; color: #D8CBAE; transition: width .2s ease; }
+        .logo-section { display: flex; align-items: center; gap: 12px; padding: 0 20px; margin-bottom: 25px; flex-shrink: 0; }
+        .logo-icon-box { font-size: 24px; color: white; }
+        .logo-text h1 { color: white; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+        .logo-text p { color: #A79C89; font-size: 11px; }
+
+        .menu-scroll { overflow-y: auto; flex: 1; padding-bottom: 20px; }
+        .menu-scroll::-webkit-scrollbar { width: 5px; }
+        .menu-scroll::-webkit-scrollbar-thumb { background: #1E332E; border-radius: 4px; }
+
+        .nav-group-title { color: var(--pd-ink-muted, #766B5A); padding: 15px 20px 5px 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; margin: 2px 10px; border-radius: 10px; width: calc(100% - 20px); color: #A79C89; text-decoration: none; font-size: 13.5px; transition: 0.2s ease; }
+        .nav-item:hover, .nav-item.active { color: white; background: var(--sidebar-active); }
+        .nav-item.active { box-shadow: 0 4px 10px rgba(31,92,86,.35); }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .nav-left i { width: 16px; text-align: center; }
+
+        .badge-orange { background: var(--alert-orange); color: white; font-size: 11px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+
+        .sidebar-footer { border-top: 1px solid #1E332E; padding: 15px 20px 5px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; background-color: var(--sidebar-bg); }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #E4DAC5; color: var(--text-dark); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+        .sidebar-footer .avatar { background: #4FA79B; color: #1B160E; }
+        .user-meta h4 { color: white; font-size: 13px; font-weight: 600; }
+        .user-meta p { color: #A79C89; font-size: 11px; }
+
+        /* --- COLLAPSE LOGIC --- */
+        .sidebar-controls { display: flex; justify-content: flex-end; align-items: center; padding: 0 14px 12px; gap: 6px; flex-shrink: 0; }
+        .sidebar-toggle-btn, .sidebar-close-btn { background: rgba(255,255,255,0.06); border: none; color: #C7D6CE; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s ease; flex-shrink: 0; }
+        .sidebar-toggle-btn:hover, .sidebar-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .sidebar-toggle-btn svg, .sidebar-close-btn svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
+        .sidebar-close-btn { display: none; }
+
+        .main-content { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; transition: margin-left .2s ease; }
+        .sidebar.collapsed { width: 76px !important; }
+        .sidebar.collapsed .sidebar-controls { justify-content: center; padding: 0 6px 12px; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .logo-section, .sidebar.collapsed .logo-text, .sidebar.collapsed .nav-group-title, .sidebar.collapsed .nav-item span, .sidebar.collapsed .badge-orange, .sidebar.collapsed .user-meta, .sidebar.collapsed .sidebar-footer i { display: none !important; }
+        .sidebar.collapsed .logo-section { justify-content: center !important; padding: 0 8px !important; }
+        .sidebar.collapsed .logo-icon-box { font-size: 20px !important; }
+        .sidebar.collapsed .nav-item { justify-content: center; margin: 2px 8px; width: calc(100% - 16px); }
+        .sidebar.collapsed .nav-left { gap: 0; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; padding: 20px 8px; }
+        .sidebar.collapsed .menu-scroll { margin-top: 40px; }
+        body.sidebar-collapsed .main-content { margin-left: 76px !important; }
+
+        /* Responsive */
+        .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; margin-right: 14px; }
+        .hamburger-btn:hover { background: #EFE7D6; }
+        .hamburger-btn svg { width: 22px; height: 22px; color: var(--text-dark); display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(2,6,23,.55); z-index: 90; }
+        .sidebar-overlay.open { display: block; }
+
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform .25s ease; z-index: 110; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger-btn { display: inline-flex; }
+            .main-content { margin-left: 0 !important; }
+            .search-container { display: none; }
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-close-btn { display: flex; }
+            body.sidebar-collapsed .main-content { margin-left: 0 !important; }
+        }
+
+        /* --- TOP NAV --- */
+        .top-navbar { background: white; height: 65px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 90; }
+        .search-container { position: relative; width: 350px; }
+        .search-container i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+        .search-container input { width: 100%; padding: 8px 12px 8px 36px; border: 1px solid var(--border-color); background: var(--pd-paper, #F7F3EA); border-radius: 8px; font-size: 13px; outline: none; }
+        .nav-right-actions { display: flex; align-items: center; gap: 20px; }
+
+        /* --- WORKSPACE --- */
+        .workspace-panel { padding: 30px; flex: 1; max-width: 900px; }
+        .view-title-block { margin-bottom: 25px; }
+        .view-title-block h2 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
+        .view-title-block p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+        .settings-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .settings-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .settings-card-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; background: #EEF3EC; color: var(--primary-blue); }
+        .settings-card-header h3 { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+        .settings-card-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .profile-summary { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+        .profile-summary-avatar { width: 64px; height: 64px; border-radius: 50%; background: #4FA79B; color: #1B160E; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; flex-shrink: 0; }
+        .profile-summary h4 { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+        .profile-summary p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+        .role-pill { display: inline-flex; align-items: center; gap: 6px; background: #EEF3EC; color: var(--primary-blue); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; text-transform: capitalize; margin-top: 6px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field.full { grid-column: 1 / -1; }
+        .form-field label { font-size: 12.5px; font-weight: 600; color: var(--text-dark); }
+        .form-field input {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13.5px;
+            outline: none;
+            background: var(--pd-paper, #F7F3EA);
+            transition: border-color .15s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-field input:focus { border-color: var(--primary-blue); background: white; }
+        .form-field input:disabled { color: var(--text-muted); cursor: not-allowed; }
+        .field-hint { font-size: 11px; color: var(--text-muted); }
+
+        .settings-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border-color); }
+
+        .btn-save { background: var(--sidebar-bg); color: white; border: none; padding: 10px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: .15s ease; }
+        .btn-save:hover { background: #1B160E; }
+        .btn-save:disabled { opacity: .6; cursor: not-allowed; }
+
+        .form-status { font-size: 12.5px; font-weight: 600; display: none; align-items: center; gap: 6px; }
+        .form-status.success { color: var(--success-green); display: flex; }
+        .form-status.error { color: var(--alert-red); display: flex; }
+
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #EFE7D6; }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-row-label h4 { font-size: 13.5px; font-weight: 600; color: var(--text-dark); }
+        .toggle-row-label p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider { position: absolute; cursor: pointer; inset: 0; background-color: #D8CBAE; transition: .2s; border-radius: 999px; }
+        .switch-slider::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+        .switch input:checked + .switch-slider { background-color: var(--primary-blue); }
+        .switch input:checked + .switch-slider::before { transform: translateX(18px); }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-controls">
+            <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu" title="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div class="logo-section">
+            <div class="logo-icon-box"><i class="fa-solid fa-tower-broadcast"></i></div>
+            <div class="logo-text">
+                <h1>PADANE System</h1>
+                <p>Assistive & Navigational</p>
+            </div>
+        </div>
+
+        <div class="menu-scroll">
+            <div class="nav-group-title">Main</div>
+            <a href="admin.html" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></div>
+            </a>
+            <a href="device_management.html" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-microchip"></i><span>Device Management</span></div>
+            </a>
+
+            <div class="nav-group-title">Management</div>
+            <a href="user_profiles.html" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-users-gear"></i><span>User Profiles</span></div>
+            </a>
+            <a href="messages.html" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-comments"></i><span>Messages</span></div>
+                <span class="badge-orange" id="msgBadgeAdmin" style="display:none;">0</span>
+            </a>
+            <a href="real_time_alerts.html" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-bell"></i><span>Real-time Alerts</span></div>
+            </a>
+            <a href="audit_trail.html" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-clipboard-list"></i><span>Audit Trail</span></div>
+            </a>
+
+            <div class="nav-group-title">System</div>
+            <a href="user_setting.html" class="nav-item active">
+                <div class="nav-left"><i class="fa-solid fa-sliders"></i><span>User Settings</span></div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-circle-question"></i><span>Support</span></div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-left"><i class="fa-solid fa-gears"></i><span>System Config</span></div>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">AR</div>
+            <div class="user-meta">
+                <h4 id="admin-name-sidebar">Amara Reyes</h4>
+                <p>Administrator</p>
+            </div>
+            <i class="fa-solid fa-right-from-bracket" onclick="triggerLogout()" style="margin-left: auto; cursor: pointer; color: var(--pd-ink-muted, #766B5A);"></i>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-navbar">
+            <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search settings...">
+            </div>
+            <div class="nav-right-actions">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar" style="background: #E4DAC5; color: var(--text-dark);">AR</div>
+                    <div class="user-meta" style="color: var(--text-dark);">
+                        <h4 id="admin-name-topbar" style="color: var(--text-dark);">Amara Reyes</h4>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace-panel">
+            <div class="view-title-block">
+                <h2>User Settings</h2>
+                <p>Manage your profile information, security, and notification preferences.</p>
+            </div>
+
+            <!-- Profile Information -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-card-icon"><i class="fa-solid fa-user"></i></div>
+                    <div>
+                        <h3>Profile Information</h3>
+                        <p>Update your name and contact number.</p>
+                    </div>
+                </div>
+
+                <div class="profile-summary">
+                    <div class="profile-summary-avatar" id="profileAvatarInitials">AR</div>
+                    <div>
+                        <h4 id="profileSummaryName">Loading...</h4>
+                        <p id="profileSummaryUsername">@—</p>
+                        <span class="role-pill" id="profileSummaryRole"><i class="fa-solid fa-shield-halved"></i> —</span>
+                    </div>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="fullname">Full Name</label>
+                            <input type="text" id="fullname" name="fullname" placeholder="Full name" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="contactnumber">Contact Number</label>
+                            <input type="tel" id="contactnumber" name="contactnumber" placeholder="e.g. 09171234567">
+                        </div>
+                        <div class="form-field">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" disabled>
+                            <span class="field-hint">Username cannot be changed.</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" disabled>
+                            <span class="field-hint">Managed from Account Settings.</span>
+                        </div>
+                    </div>
+                    <div class="settings-card-footer">
+                        <span class="form-status" id="profileStatus"></span>
+                        <button type="submit" class="btn-save" id="profileSaveBtn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-card-icon" style="background:#FBF1EC; color:var(--alert-red);"><i class="fa-solid fa-lock"></i></div>
+                    <div>
+                        <h3>Change Password</h3>
+                        <p>Choose a strong password you don't use elsewhere.</p>
+                    </div>
+                </div>
+
+                <form id="passwordForm">
+                    <div class="form-grid">
+                        <div class="form-field full">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="At least 8 characters" required minlength="8">
+                        </div>
+                        <div class="form-field">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Re-enter new password" required minlength="8">
+                        </div>
+                    </div>
+                    <div class="settings-card-footer">
+                        <span class="form-status" id="passwordStatus"></span>
+                        <button type="submit" class="btn-save" id="passwordSaveBtn">Update Password</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notification Preferences -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-card-icon" style="background:#FBF3E4; color:var(--alert-orange);"><i class="fa-solid fa-bell"></i></div>
+                    <div>
+                        <h3>Notification Preferences</h3>
+                        <p>Choose how you're notified about alerts and messages. Saved on this device.</p>
+                    </div>
+                </div>
+
+                <div class="toggle-row">
+                    <div class="toggle-row-label">
+                        <h4>Real-time SOS alerts</h4>
+                        <p>Get notified immediately when a hardware SOS is triggered.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifySos" checked>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <div class="toggle-row-label">
+                        <h4>New messages</h4>
+                        <p>Show a badge and sound when a new message arrives.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifyMessages" checked>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <div class="toggle-row-label">
+                        <h4>Device offline warnings</h4>
+                        <p>Alert when a monitored device loses connection.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifyOffline">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+
+                <div class="settings-card-footer">
+                    <span class="form-status" id="notifyStatus"></span>
+                    <button type="button" class="btn-save" id="notifySaveBtn" onclick="saveNotificationPrefs()">Save Preferences</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let accountData = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("loggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+            const currentAdmin = sessionStorage.getItem("username") || "Amara Reyes";
+            document.getElementById("admin-name-sidebar").textContent = currentAdmin;
+            document.getElementById("admin-name-topbar").textContent = currentAdmin;
+
+            loadAccount();
+            loadUnreadBadge();
+            loadNotificationPrefs();
+            setInterval(loadUnreadBadge, 10000);
+
+            document.getElementById("profileForm").addEventListener("submit", saveProfile);
+            document.getElementById("passwordForm").addEventListener("submit", savePassword);
+        });
+
+        function initialsOf(name) {
+            const parts = (name || "").trim().split(" ").filter(Boolean);
+            if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            return (parts[0] ? parts[0][0] : "U").toUpperCase();
+        }
+
+        function showStatus(id, message, isError) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.className = "form-status " + (isError ? "error" : "success");
+            setTimeout(() => { el.className = "form-status"; }, 4000);
+        }
+
+        async function loadAccount() {
+            try {
+                const res = await fetch("/api/account");
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) window.location.href = "login.html";
+                    return;
+                }
+                accountData = await res.json();
+
+                document.getElementById("fullname").value = accountData.fullname || "";
+                document.getElementById("contactnumber").value = accountData.contactnumber || "";
+                document.getElementById("username").value = accountData.username || "";
+                document.getElementById("address").value = accountData.address || "—";
+
+                document.getElementById("profileSummaryName").textContent = accountData.fullname || "—";
+                document.getElementById("profileSummaryUsername").textContent = "@" + (accountData.username || "—");
+                document.getElementById("profileAvatarInitials").textContent = initialsOf(accountData.fullname);
+                document.getElementById("profileSummaryRole").innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${accountData.role || "user"}`;
+            } catch (err) {
+                console.error(err);
+                showStatus("profileStatus", "Could not load your profile.", true);
+            }
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById("profileSaveBtn");
+            btn.disabled = true;
+            try {
+                const res = await fetch("/api/account", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        fullname: document.getElementById("fullname").value.trim(),
+                        contactnumber: document.getElementById("contactnumber").value.trim()
+                    })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    if (data.name) {
+                        sessionStorage.setItem("username", data.name);
+                        document.getElementById("admin-name-sidebar").textContent = data.name;
+                        document.getElementById("admin-name-topbar").textContent = data.name;
+                    }
+                    showStatus("profileStatus", "Profile updated.", false);
+                    loadAccount();
+                } else {
+                    showStatus("profileStatus", data.error || "Could not update profile.", true);
+                }
+            } catch (err) {
+                console.error(err);
+                showStatus("profileStatus", "Network error. Please try again.", true);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function savePassword(e) {
+            e.preventDefault();
+            const current = document.getElementById("currentPassword").value;
+            const next = document.getElementById("newPassword").value;
+            const confirm = document.getElementById("confirmPassword").value;
+
+            if (next !== confirm) {
+                showStatus("passwordStatus", "New passwords do not match.", true);
+                return;
+            }
+            if (next.length < 8) {
+                showStatus("passwordStatus", "New password must be at least 8 characters.", true);
+                return;
+            }
+
+            const btn = document.getElementById("passwordSaveBtn");
+            btn.disabled = true;
+            try {
+                const res = await fetch("/api/account", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ current_password: current, new_password: next })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    showStatus("passwordStatus", "Password updated.", false);
+                    document.getElementById("passwordForm").reset();
+                } else {
+                    showStatus("passwordStatus", data.error || "Could not update password.", true);
+                }
+            } catch (err) {
+                console.error(err);
+                showStatus("passwordStatus", "Network error. Please try again.", true);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function loadNotificationPrefs() {
+            try {
+                const saved = JSON.parse(localStorage.getItem("padaneNotifyPrefs") || "{}");
+                document.getElementById("notifySos").checked = saved.sos !== false;
+                document.getElementById("notifyMessages").checked = saved.messages !== false;
+                document.getElementById("notifyOffline").checked = saved.offline === true;
+            } catch (e) {}
+        }
+
+        function saveNotificationPrefs() {
+            const prefs = {
+                sos: document.getElementById("notifySos").checked,
+                messages: document.getElementById("notifyMessages").checked,
+                offline: document.getElementById("notifyOffline").checked
+            };
+            try { localStorage.setItem("padaneNotifyPrefs", JSON.stringify(prefs)); } catch (e) {}
+            showStatus("notifyStatus", "Preferences saved on this device.", false);
+        }
+
+        async function loadUnreadBadge() {
+            try {
+                const res = await fetch("/api/messages/unread-count");
+                if (!res.ok) return;
+                const data = await res.json();
+                const badge = document.getElementById("msgBadgeAdmin");
+                if (data.unread > 0) {
+                    badge.textContent = data.unread;
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function triggerLogout() {
+            fetch("/api/logout", { method: "POST" }).catch(() => {});
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        // --- Sidebar Logic ---
+        function toggleSidebar() {
+            var sb = document.querySelector('.sidebar');
+            var ov = document.getElementById('sidebarOverlay');
+            if (sb) sb.classList.toggle('open');
+            if (ov) ov.classList.toggle('open');
+        }
+
+        function closeSidebar() {
+            var sb = document.querySelector('.sidebar');
+            var ov = document.getElementById('sidebarOverlay');
+            if (sb) sb.classList.remove('open');
+            if (ov) ov.classList.remove('open');
+        }
+
+        function toggleSidebarCollapse() {
+            var sb = document.querySelector('.sidebar');
+            if (!sb) return;
+            var collapsed = sb.classList.toggle('collapsed');
+            document.body.classList.toggle('sidebar-collapsed', collapsed);
+            try { localStorage.setItem('padaneSidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+        }
+
+        (function restoreSidebarCollapse() {
+            try {
+                if (localStorage.getItem('padaneSidebarCollapsed') === '1' && window.innerWidth > 900) {
+                    var sb = document.querySelector('.sidebar');
+                    if (sb) sb.classList.add('collapsed');
+                    document.body.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
+</body>
+</html>
